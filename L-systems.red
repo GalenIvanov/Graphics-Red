@@ -158,7 +158,6 @@ load-sample: func [ n ] [
     ]
     clear canvas/draw
     append canvas/draw load-params
-
 ]
 
 draw-samples: does [
