@@ -1,4 +1,4 @@
-]Red [
+Red [
    Title: "L-systems"
    Author: "Galen Ivanov"
    needs: 'view
