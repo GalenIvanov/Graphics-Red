@@ -1,7 +1,7 @@
 Red [
    Title: "L-systems"
    Author: "Galen Ivanov"
-   needs: 'view
+   Needs: 'View
 ]
 
 expand-axiom: function [
@@ -34,6 +34,7 @@ normalize-coords: function [
     raw-coords [ block! ]
     width [ integer! ]
 ] [
+
     set [ minx maxx miny maxy ] raw-coords/1
 
     dx: maxx - minx
@@ -42,7 +43,8 @@ normalize-coords: function [
     offsx: width - ( dx * coef ) / 2 
     offsy: width - ( dy * coef ) / 2 
     
-    collect [
+    collect [ 
+        keep [ pen gray box 0x0 799x799 pen black ]
         foreach item next raw-coords [
             t: type? item
             if t = block! [ keep to pair! reduce [ item/1 - minx * coef + offsx
@@ -50,6 +52,7 @@ normalize-coords: function [
             if t = word! [ keep item ]
         ]
     ] 
+    
 ]
 
 parse-expanded: function [
@@ -110,25 +113,26 @@ samples: [
     [ "90" "0" "2" "XYXYXYX+XYXYXYX+XYXYXYX+XYXYXYX" "XY" [ "X" [ "F(orange)X+FX+FXFY-FY-" ]  ; joined cross curves
                                                             "Y" [ "+FX+FXFY-FY-FY" ] ] ]    
     [ "90" "0" "12" "FL" "F" [ "L" [ "L+RF+" ] "R" [ "-FL-R" ] ] ]                            ; dragon curve                          
-    [ "25" "90" "4" "F" "F" [ "F" [ "(brown)FF+[(green)+F-F-F]-[(green)-F+F+F]" ] ] ]         ; plant 1
+    [ "25" "90" "4" "F" "F" [ "F" [ "(brown)FF+[(green)+F-F-F]-[(leaf)-F+F+F]" ] ] ]          ; plant
     [ "60" "30" "10" "X" "F" [ "X" [ "[-F+F[Y]+F][+F-F[X]-F]" ]                               ; hexagonal grif
                                "Y"  [ "[-F+F[Y]+F][+F-F-F]" ] ] ]
-    [ "90" "0" "4" "X" "F" [ "X" [ "(blue)-YF+XFX+FY-" ] "Y" [ "+XF-YFY-FX+" ] ] ]            ; Hilbert curve 
-    [ "60" "0" "3" "XF" "F" [ "X" [ "(violet)X+YF++YF-FX--FXFX-YF+" ]                         ; Hexagonal Gosper curve 
+    [ "90" "0" "4" "X" "F" [ "X" [ "(water)-YF+XFX+FY-" ] "Y" [ "(water)+XF-YFY-FX+" ] ] ]    ; Hilbert curve 
+    [ "60" "0" "3" "XF" "F" [ "X" [ "(olive)X+YF++YF-FX--FXFX-YF+" ]                          ; Hexagonal Gosper curve 
                                     "Y" [ "-FX+YFYF++YF+FX--FX-Y" ] ] ] 
     [ "90" "0" "3" "F+XF+F+XF" "F" [ "X" [ "(teal)XF-F+F-XF+F+XF-F+F-X" ] ] ]                 ; square-grid approximation of Sierpinsky curev
     [ "30" "0" "6" "W" "F" [ "W" [ "(red)+++X--F--ZFX+" ]                                     ; lace  
                              "X" [ "(red)---W++F++YFW-" ] 
                              "Y" [ "+ZFX--F--Z+++" ]
                              "Z" [ "-YFW++F++Y---" ] ] ]    
+    [ "15" "0" "4" "AAAA" "F" [ "A" [ "X+X+X+X+X+X+" ]                                        ; concentric rings
+                                "X" [ "[(water)F+F+F+F[---X-Y]+++++F++++++++F-F-F-F]" ]
+                                "Y" [ "[F+F+F+F[---Y]+++++F++++++++F-F-F-F]"] ] ]                         
     [ "36" "0" "3" "[7]++[7]++[7]++[7]++[7]" "1" [ "6" [ " 81++91----71[-81----61]++" ]       ; Penrose tiling
                                                    "7" [ "+81--91[---61--71]+" ] 
-                                                   "8" [ "-(aqua)61++71[+++81++91]-" ] 
+                                                   "8" [ "-(tanned)61++71[+++81++91]-" ] 
                                                    "9" [ "--81++++61[+91++++71]--71" ] 
                                                    "1" [ "" ] ] ]                               
-    [ "15" "0" "4" "AAAA" "F" [ "A" [ "X+X+X+X+X+X+" ]                                        ; concentric rings
-                                "X" [ "[(brown)F+F+F+F[---X-Y]+++++F++++++++F-F-F-F]" ]
-                                "Y" [ "[F+F+F+F[---Y]+++++F++++++++F-F-F-F]"] ] ]
+
 ]
 
 load-sample: func [ n ] [
@@ -141,7 +145,6 @@ load-sample: func [ n ] [
     use-field/text: copy sample/5
 
     sp: " "    
-    
     repeat idx 5 [
         do rejoin ["c" idx "/text:  sp"]
         do rejoin ["r" idx "/text:  sp"]
@@ -155,6 +158,7 @@ load-sample: func [ n ] [
     ]
     clear canvas/draw
     append canvas/draw load-params
+
 ]
 
 draw-samples: does [
@@ -165,10 +169,9 @@ draw-samples: does [
         do rejoin ["append canvas" idx "/draw normalize-coords p 110"]
         idx: idx + 1
     ]
-    samples-enabled: on
 ]
 
-frame: [ pen #CCC box 0x0 109x109 pen #000 ]
+frame: [ pen gray box 0x0 109x109 pen black ]
 
 view [
    title "L-systems / Red :: Galen Ivanov"
@@ -207,5 +210,5 @@ view [
    below return 
   
    canvas: base white 800x800 
-   draw  [] 
+   draw [ pen gray box 0x0 799x799 pen black ]
 ] 
