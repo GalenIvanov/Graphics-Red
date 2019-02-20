@@ -64,7 +64,6 @@ parse-expanded: function [
     draw-block: make block! 100000
     coord-stack: make block! 100000
     
-    hex-digit: charset "0123456789ABCDEF"
     u: charset used
     plus: charset #"+"
     minus: charset #"-"  ; I had probless with parse using just "-" (without  charset)
@@ -156,7 +155,6 @@ load-sample: func [ n ] [
     ]
     clear canvas/draw
     append canvas/draw load-params
-
 ]
 
 draw-samples: does [
