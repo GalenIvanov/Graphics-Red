@@ -20,21 +20,11 @@ expand-axiom: function [
     ]
 ]
 
-calc-line: function [
-    x [ number! ]
-    y [ number! ]
-    angle [ number! ]
-] [
-    x: x + cos ( pi * angle / 180 )
-    y: y - sin ( pi * angle / 180 )
-    reduce [ x y ]
-]
-
 normalize-coords: function [
     raw-coords [ block! ]
     width [ integer! ]
 ] [
-    set [ minx maxx miny maxy ] raw-coords/1
+    set [ minx maxx miny maxy ] take/last raw-coords
 
     dx: maxx - minx
     dy: maxy - miny
@@ -42,17 +32,15 @@ normalize-coords: function [
     offsx: width - ( dx * coef ) / 2 
     offsy: width - ( dy * coef ) / 2 
     
-    draw-block: make block! 100000
-    
     collect/into [ 
         keep [ pen gray box 0x0 799x799 pen black ]
-        foreach item next raw-coords [
+        foreach item raw-coords [
             t: type? item
             if t = block! [ keep to pair! reduce [ item/1 - minx * coef + offsx
                                                    item/2 - miny * coef + offsy ] ]
             if t = word! [ keep item ]
         ]
-    ] draw-block 
+    ] make block! 100000
 ]
 
 parse-expanded: function [
@@ -64,7 +52,7 @@ parse-expanded: function [
     x: y: 0
     minx: maxx: miny: maxy: 0
     
-    raw-block: make block! 100000
+    raw-block: 
     coord-stack: make block! 100000
     
     u: charset used
@@ -75,7 +63,8 @@ parse-expanded: function [
                 [ "(" copy c to ")" skip ] ( keep 'pen keep to word! c )
                 | u ( keep 'line
                       keep/only reduce [ x y ]
-                      set [ x y ] calc-line x y angle 
+                      x: x + cosine angle
+                      y: y - sine angle
                       keep/only reduce [ x y ]
                       minx: min x minx
                       maxx: max x maxx
@@ -88,10 +77,8 @@ parse-expanded: function [
                 | skip
             ]
         ]
-    ] raw-block
-    
-    insert/only raw-block reduce [ minx maxx miny maxy ]
-    raw-block
+        keep/only reduce [ minx maxx miny maxy ]
+    ] make block! 100000
 ]
 
 load-params: does [
@@ -133,7 +120,6 @@ samples: [
                                                    "8" [ "-(tanned)61++71[+++81++91]-" ] 
                                                    "9" [ "--81++++61[+91++++71]--71" ] 
                                                    "1" [ "" ] ] ]                               
-
 ]
 
 load-sample: func [ n ] [
@@ -159,7 +145,6 @@ load-sample: func [ n ] [
     ]
     clear canvas/draw
     append canvas/draw load-params
-
 ]
 
 draw-samples: does [
