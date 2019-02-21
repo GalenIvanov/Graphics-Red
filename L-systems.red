@@ -112,8 +112,8 @@ samples: [
     ; angle orientation iterations axiom use rules
     [ "60" "0" "5" "YF" "F" [ "X" [ "(teal)YF+XF+Y" ] "Y" [ "(cyan)XF-YF-X" ] ] ]             ; Sierpinski arrowhead
     [ "60" "0" "4" "F+F+F+F" "F" [ "F" [ "(pink)F+F-F+F+F" ] ] ]                              ; Koch
-    [ "90" "0" "2" "XYXYXYX+XYXYXYX+XYXYXYX+XYXYXYX" "XY" [ "X" [ "F(orange)X+FX+FXFY-FY-" ]  ; joined cross curves
-                                                            "Y" [ "+FX+FXFY-FY-FY" ] ] ]    
+    [ "90" "0" "2" "XYXYXYX+XYXYXYX+XYXYXYX+XYXYXYX" "XY" [ "X" [ "(orange)X+X+XY-Y-" ]       ; joined cross curves
+                                                            "Y" [ "+X+XY-Y-Y" ] ] ]  
     [ "90" "0" "12" "FL" "F" [ "L" [ "L+RF+" ] "R" [ "-FL-R" ] ] ]                            ; dragon curve                          
     [ "25" "90" "4" "F" "F" [ "F" [ "(brown)FF+[(green)+F-F-F]-[(leaf)-F+F+F]" ] ] ]          ; plant
     [ "60" "30" "10" "X" "F" [ "X" [ "[-F+F[Y]+F][+F-F[X]-F]" ]                               ; hexagonal grif
