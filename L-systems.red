@@ -34,7 +34,6 @@ normalize-coords: function [
     raw-coords [ block! ]
     width [ integer! ]
 ] [
-
     set [ minx maxx miny maxy ] raw-coords/1
 
     dx: maxx - minx
@@ -43,7 +42,9 @@ normalize-coords: function [
     offsx: width - ( dx * coef ) / 2 
     offsy: width - ( dy * coef ) / 2 
     
-    collect [ 
+    draw-block: make block! 100000
+    
+    collect/into [ 
         keep [ pen gray box 0x0 799x799 pen black ]
         foreach item next raw-coords [
             t: type? item
@@ -51,8 +52,8 @@ normalize-coords: function [
                                                    item/2 - miny * coef + offsy ] ]
             if t = word! [ keep item ]
         ]
-    ] 
-    
+    ] draw-block 
+    draw-block
 ]
 
 parse-expanded: function [
@@ -64,33 +65,34 @@ parse-expanded: function [
     x: y: 0
     minx: maxx: miny: maxy: 0
     
-    draw-block: make block! 100000
+    raw-block: make block! 100000
     coord-stack: make block! 100000
     
     u: charset used
-    plus: charset #"+"
-    minus: charset #"-"  ; I had probless with parse using just "-" (without  charset)
-        
-    parse expr [
-        any [
-            [ "(" copy c to ")" skip ] ( append draw-block 'pen append draw-block to word! c )
-            | u ( append draw-block 'line
-                  append/only draw-block reduce [ x y ]
-                  set [ x y ] calc-line x y angle 
-                  append/only draw-block reduce [ x y ]
-                  minx: min x minx
-                  maxx: max x maxx
-                  miny: min y miny
-                  maxy: max y maxy )
-            | plus ( angle: angle + phi )
-            | minus ( angle: angle - phi )
-            | "[" ( append/only coord-stack reduce [ x y angle ] )
-            | "]" ( set [ x y angle ] take/last coord-stack )
-            | skip
+    
+    collect/into [
+        parse expr [
+            any [
+                [ "(" copy c to ")" skip ] ( keep 'pen keep to word! c )
+                | u ( keep 'line
+                      keep/only reduce [ x y ]
+                      set [ x y ] calc-line x y angle 
+                      keep/only reduce [ x y ]
+                      minx: min x minx
+                      maxx: max x maxx
+                      miny: min y miny
+                      maxy: max y maxy )
+                | "+" ( angle: angle + phi )
+                | "-"  ( angle: angle - phi )
+                | "[" ( append/only coord-stack reduce [ x y angle ] )
+                | "]" ( set [ x y angle ] take/last coord-stack )
+                | skip
+            ]
         ]
-    ]
-    insert/only draw-block reduce [ minx maxx miny maxy ]
-    draw-block
+    ] raw-block
+    
+    insert/only raw-block reduce [ minx maxx miny maxy ]
+    raw-block
 ]
 
 load-params: does [
@@ -158,6 +160,7 @@ load-sample: func [ n ] [
     ]
     clear canvas/draw
     append canvas/draw load-params
+
 ]
 
 draw-samples: does [
