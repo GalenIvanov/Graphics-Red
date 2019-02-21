@@ -176,8 +176,8 @@ view [
    text 35 "Rule 3" c3: field 20 r3: field 270 return
    text 35 "Rule 4" c4: field 20 r4: field 270 return
    text 35 "Rule 5" c5: field 20 r5: field 270 return
-
-   start: button 345x40 font-size 16 "Start" [ clear canvas/draw append canvas/draw load-params ] return
+   
+   start: button 345x40 font-size 16 "Start" [ append clear canvas/draw load-params ] return
    text font-size 16 "Examples" return
    
    style thumb: base white 110x110  
