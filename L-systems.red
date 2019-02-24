@@ -52,7 +52,6 @@ parse-expanded: function [
     x: y: 0
     minx: maxx: miny: maxy: 0
     
-    raw-block: 
     coord-stack: make block! 100000
     
     u: charset used
