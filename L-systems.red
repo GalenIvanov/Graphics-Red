@@ -36,8 +36,8 @@ normalize-coords: function [
         keep [ pen gray box 0x0 799x799 pen black ]
         foreach item raw-coords [
             t: type? item
-            if t = block! [ keep to pair! reduce [ item/1 - minx * coef + offsx
-                                                   item/2 - miny * coef + offsy ] ]
+            if t = block! [ keep as-pair item/1 - minx * coef + offsx 
+                                         item/2 - miny * coef + offsy ] 
             if t = word! [ keep item ]
         ]
     ] make block! 100000
@@ -49,11 +49,8 @@ parse-expanded: function [
     phi [ number! ]
     angle [ number! ]    
 ] [
-    x: y: 0
-    minx: maxx: miny: maxy: 0
-    
+    x: y: minx: maxx: miny: maxy: 0
     coord-stack: make block! 100000
-    
     u: charset used
     
     collect/into [
