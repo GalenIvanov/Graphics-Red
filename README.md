@@ -12,4 +12,4 @@ Most examples are taken from "Lindenmayer Systems, Fractals, and Plants", availa
 Extended Filled Truchet tiles
 -
 Simple tiling of the plane with 2 sets of Truchet tiles, each set consisting of 3 tiles.
-<img src="Truchet.png">
+<img src="Truchet.jpg">
