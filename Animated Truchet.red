@@ -31,9 +31,9 @@ repeat i 2 [
 		collect/into[
 			until [
 			    ang: either i = 2 [angle][90 - angle]
-				x1: 25 * cosine ang
+				x1:  25 * cosine ang
 				y1: -25 * sine ang
-				x2: 39 * cosine ang
+				x2:  39 * cosine ang
 				y2: -39 * sine ang
 
                 keep [line-width 5 pen gray line-cap round]
@@ -50,7 +50,6 @@ repeat i 2 [
 	    draw get img draw-block
 		phase: step / 9.0 + phase
 	]
-	
 ]	
 
 update-board: does [
@@ -71,6 +70,7 @@ update-board: does [
 ]
 
 update-board
+;save/as %truchet.jpg big-img 'jpeg
 
 view [ canvas: base 512x512 draw [ image big-img ] rate 30
      on-time [update-board append clear canvas/draw [image big-img]]
