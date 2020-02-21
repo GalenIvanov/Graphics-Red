@@ -45,7 +45,6 @@ repeat i 2 [
 	    draw get img draw-block
 		phase: phase + 1.8
 	]
-	
 ]	
 
 update-board: does [
