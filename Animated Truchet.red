@@ -1,4 +1,4 @@
-Red [
+Red[
    Title: "Animated Truchet tiles"
    Author: "Galen Ivanov"
    Date: 21-02-2020
@@ -7,7 +7,7 @@ Red [
 random/seed now
 
 board: make block! 64
-bg: [64x64 255.255.255]
+bg: [64x64 240.240.240]
 frame: 0
 phase: 0.0
 step: 18.0
@@ -27,7 +27,7 @@ repeat i 2 [
     repeat n 10 [
 	    img: to word! rejoin ['img i n - 1] 
 		set img make image! bg
-	    draw-block: copy [line-width 5 pen sky line-cap round ]
+	    draw-block: copy [line-width 5 pen white line-cap round ]
 		angle: phase
 		collect/into[
 			until [
@@ -45,6 +45,7 @@ repeat i 2 [
 	    draw get img draw-block
 		phase: phase + 1.8
 	]
+	
 ]	
 
 update-board: does [
