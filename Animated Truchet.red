@@ -7,7 +7,7 @@ Red[
 random/seed now
 
 board: make block! 64
-bg: [64x64 196.228.255]
+bg: [64x64 164.200.255]
 frame: 0
 phase: 0.0
 step: 90 / 4.0
@@ -26,18 +26,24 @@ repeat i 2 [
     repeat n 10 [
 	    img: to word! rejoin ['img i n - 1] 
 		set img make image! bg
-	    draw-block: copy [ line-width 5 pen white line-cap round]
+	    draw-block: copy []
 		angle: phase
 		collect/into[
 			until [
 			    ang: either i = 2 [angle][90 - angle]
-				x1: 24 * cosine ang
-				y1: -24 * sine ang
-				x2: 40 * cosine ang
-				y2: -40 * sine ang
+				x1: 25 * cosine ang
+				y1: -25 * sine ang
+				x2: 39 * cosine ang
+				y2: -39 * sine ang
 
+                keep [line-width 5 pen gray line-cap round]
 				keep compose [line (add1 + as-pair x1 y1) (add1 + as-pair x2 y2)]
-				keep compose [line (add2 + as-pair x1 y1) (add2 + as-pair x2 y2)] 
+				keep compose [line (add2 + as-pair x1 y1) (add2 + as-pair x2 y2)]
+                
+                keep [ line-width 5 pen white line-cap round]
+                keep compose [line (add1 - 3 + as-pair x1 y1) (add1 - 3 + as-pair x2 y2)]
+				keep compose [line (add2 - 3 + as-pair x1 y1) (add2 - 3 + as-pair x2 y2)]
+                
 				(step / 9.0 + 360) < angle: angle + step
 			] 
 		] draw-block
@@ -65,7 +71,6 @@ update-board: does [
 ]
 
 update-board
-;save/as %truchet.jpg big-img 'jpeg
 
 view [ canvas: base 512x512 draw [ image big-img ] rate 30
      on-time [update-board append clear canvas/draw [image big-img]]
