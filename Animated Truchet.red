@@ -1,4 +1,4 @@
-Red[
+Red [
    Title: "Animated Truchet tiles"
    Author: "Galen Ivanov"
    Date: 21-02-2020
@@ -32,10 +32,10 @@ repeat i 2 [
 		collect/into[
 			until [
 			    ang: either i = 2 [angle][360 - angle]
-				x1: 26 * (cosine ang)
-				y1: -26 * (sine ang)
-				x2: 38 * (cosine ang)
-				y2: -38 * (sine ang)
+				x1: 26 * cosine ang
+				y1: -26 * sine ang
+				x2: 38 * cosine ang
+				y2: -38 * sine ang
 
 				keep compose [line (add1 + as-pair x1 y1) (add1 + as-pair x2 y2)]
 				keep compose [line (add2 + as-pair x1 y1) (add2 + as-pair x2 y2)] 
