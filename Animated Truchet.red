@@ -1,4 +1,4 @@
-Red[
+Red [
    Title: "Animated Truchet tiles"
    Author: "Galen Ivanov"
    Date: 21-02-2020
@@ -8,13 +8,10 @@ random/seed now
 
 board: make block! 64
 bg: [64x64 164.200.255]
+big-img: make image! [512x512 255.255.255]
 frame: 0
 phase: 0.0
 step: 90 / 4.0
-
-img11: make image! bg
-
-big-img: make image! [512x512 255.255.255]
 
 collect/into [
     repeat n 64 [ keep random 2 ]
@@ -36,18 +33,18 @@ repeat i 2 [
 				x2:  39 * cosine ang
 				y2: -39 * sine ang
 
-                keep [line-width 5 pen gray line-cap round]
+                		keep [line-width 5 pen gray line-cap round]
 				keep compose [line (add1 + as-pair x1 y1) (add1 + as-pair x2 y2)]
 				keep compose [line (add2 + as-pair x1 y1) (add2 + as-pair x2 y2)]
                 
-                keep [ line-width 5 pen white line-cap round]
-                keep compose [line (add1 - 3 + as-pair x1 y1) (add1 - 3 + as-pair x2 y2)]
+		                keep [ line-width 5 pen white line-cap round]
+                		keep compose [line (add1 - 3 + as-pair x1 y1) (add1 - 3 + as-pair x2 y2)]
 				keep compose [line (add2 - 3 + as-pair x1 y1) (add2 - 3 + as-pair x2 y2)]
-                
+               
 				(step / 9.0 + 360) < angle: angle + step
 			] 
 		] draw-block
-	    draw get img draw-block
+	    	draw get img draw-block
 		phase: step / 9.0 + phase
 	]
 ]	
@@ -58,11 +55,9 @@ update-board: does [
 		repeat y 8 [
 			repeat x 8 [
 			    fr: either odd? x + y [frame][9 - frame ]
-				nn: board/(y - 1 * 8 + x)
-				
 				keep compose [
 					image 
-					(to word! rejoin['img nn fr])
+					(to word! rejoin['img board/(y - 1 * 8 + x) fr])
 					(as-pair x - 1 * 64 y - 1 * 64)]
 			]
 		]
@@ -70,8 +65,7 @@ update-board: does [
 ]
 
 update-board
-;save/as %truchet.jpg big-img 'jpeg
 
 view [ canvas: base 512x512 draw [ image big-img ] rate 30
      on-time [update-board append clear canvas/draw [image big-img]]
-] 
+]
