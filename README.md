@@ -17,4 +17,4 @@ Simple tiling of the plane with 2 sets of Truchet tiles, each set consisting of 
 Optical illusion clock
 -
 A software cover of a [TokyoFlash watch] (https://tokyoflash.com/collections/watches/products/optical-illusion-lcd-watch)
-<img src="Optical Illusion Clock.red">
+<img src="Optical_Illusion_Clock.png">
