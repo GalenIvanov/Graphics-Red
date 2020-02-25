@@ -159,7 +159,7 @@ update-time: has[
     t: now/time
 	i: 0
 	collect/into [
-		foreach c rejoin [t/1 t/2][
+		foreach c rejoin [pad/left/with t/1 2 #"0" pad/left/with t/2 2 #"0"][
 			p: -48 + to integer! c
 			i: i + 1
 		
