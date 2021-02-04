@@ -25,7 +25,7 @@ board: collect [
         repeat x n-cells [
             keep compose [
                 ( make-id as-pair x y )
-                   fill-pen ( color1 )
+                fill-pen ( color1 )
                 box ( as-pair x - 1 * cell-size y - 1 * cell-size )
                     ( as-pair     x * cell-size     y * cell-size )
             ]
@@ -45,7 +45,6 @@ update-ant: does [
     col: pick id-series 3
 
     set [ col sign ] reduce pick [ [ color2 1 ] [ color1 -1 ] ] col = color1
-        
     pos: ( pick [ 0x1 -1x0 0x-1 1x0 ] rot / 90 + 1 ) * sign + pos
     rot: modulo ( sign * 90 + rot ) 360
 
@@ -78,10 +77,10 @@ reset: does [
 ]
 
 view compose/deep [
-    
     title "Langton's ant"
     
     below
+
     grid: base (1x1 * cell-size * n-cells) #9FAFFF 
     draw board
     rate (speed) on-time [ if run [ update-ant ] ]
