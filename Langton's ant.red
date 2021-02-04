@@ -40,8 +40,7 @@ board: collect [
 update-ant: does [
     steps: steps + 1
     steps-txt/text: rejoin [ "Steps: " steps ]
-    id: make-id pos
-    id-series: find board id
+    id-series: find board make-id pos
     col: pick id-series 3
 
     set [ col sign ] reduce pick [ [ color2 1 ] [ color1 -1 ] ] col = color1
