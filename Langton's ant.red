@@ -44,9 +44,9 @@ update-ant: does [
     id-series: find board id
     col: pick id-series 3
 
-	set [ col sign ] reduce pick [ [ color2 1 ] [ color1 -1 ] ] col = color1
+    set [ col sign ] reduce pick [ [ color2 1 ] [ color1 -1 ] ] col = color1
     	
-	pos: ( pick [ 0x1 -1x0 0x-1 1x0 ] rot / 90 + 1 ) * sign + pos
+    pos: ( pick [ 0x1 -1x0 0x-1 1x0 ] rot / 90 + 1 ) * sign + pos
     rot: modulo ( sign * 90 + rot ) 360
 
     if any [
