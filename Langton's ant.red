@@ -2,7 +2,7 @@ Red [
    Title: "Langton's ant"
    Author: "Galen Ivanov"
    Date: 04-02-2021
-   Needs 'view
+   Needs: 'view
 ]
 
 img-ant: load %Ant_32.png
@@ -17,7 +17,7 @@ steps: 0
 run: true
 instr: "Turn the mouse wheel over the yellow square to change the animation speed"
 
-make-id: function [ pair ][ to set-word! rejoin ["c" pair] ]
+make-id: function [ pair ][ to set-word! rejoin [ "c" pair ] ]
 
 board: collect [
     keep [ pen white ]
@@ -58,6 +58,7 @@ update-ant: does [
     ]
     
     change at id-series 3 col
+    ant: get to set-word! "ant"
     change at ant 2 pos - 1 * cell-size
     change at ant 4 rot
 ]
