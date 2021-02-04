@@ -10,7 +10,7 @@ cell-size: 32
 n-cells: 20
 color1: beige
 color2: aqua
-pos: 1x1 * ( n-cells / 2 + 1 )
+pos: 1x1 * ( n-cells / 2 + 1 ) + 1
 rot: 180
 speed: 5
 steps: 0
@@ -41,18 +41,13 @@ update-ant: does [
     steps: steps + 1
     steps-txt/text: rejoin [ "Steps: " steps ]
     id: make-id pos
-    id-s: find board id
-    col: pick id-s 3
+    id-series: find board id
+    col: pick id-series 3
 
-    either col = color1 [
-        pos: pos + pick [ 0x1 -1x0 0x-1 1x0 ] rot / 90 + 1
-        rot: modulo rot + 90 360
-        col: color2
-    ][
-        pos: pos + pick [ 0x-1 1x0 0x1 -1x0 ] rot / 90 + 1
-        rot: modulo rot - 90 360
-        col: color1
-    ]
+	set [ col sign ] reduce pick [ [ color2 1 ] [ color1 -1 ] ] col = color1
+    	
+	pos: ( pick [ 0x1 -1x0 0x-1 1x0 ] rot / 90 + 1 ) * sign + pos
+    rot: modulo ( sign * 90 + rot ) 360
 
     if any [
         pos/x < 1
@@ -63,19 +58,22 @@ update-ant: does [
         status/text: "The ant left the area. You can press Reset"
         run: false
     ]
-    change at id-s 3 col
+	
+    change at id-series 3 col
     change at ant 2 pos - 1 * cell-size
     change at ant 4 rot
 ]
 
 reset: does [
-    pos: 1x1 * ( n-cells / 2 + 1 )
+    pos: 1x1 * ( n-cells / 2 + 1 ) + 1
     rot: 180
     speed: 5
     steps: 0
     parse board [ any [ thru quote 'fill-pen change skip ( beige ) ] to end ]
     grid/draw:  board
     status/text: instr
+	grid/rate: speed
+	spd/text: to "" speed
     run: true
 ]
 
