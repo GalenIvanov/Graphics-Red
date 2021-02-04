@@ -1,85 +1,103 @@
 Red [
    Title: "Langton's ant"
    Author: "Galen Ivanov"
-   Date: 03-02-2021
+   Date: 04-02-2021
    Needs 'view
 ]
 
 img-ant: load %Ant_32.png
 cell-size: 32
-n-cells: 15
+n-cells: 20
 color1: beige
 color2: aqua
-pos: 8x8
+pos: 1x1 * ( n-cells / 2 + 1 )
 rot: 180
-speed: 1
+speed: 5
+steps: 0
+run: true
 
-make-word: function [pair][
-    to set-word! rejoin ["c" pair]
-]
+make-id: function [ pair ][ to set-word! rejoin ["c" pair] ]
 
 board: collect [
-    keep [pen white]
+    keep [ pen white ]
     repeat y n-cells [
-	    repeat x n-cells [
-		    keep compose [
-				(make-word as-pair x y)
-                fill-pen (color1)
-				box ( as-pair x - 1 * cell-size y - 1 * cell-size )
-			        ( as-pair     x * cell-size     y * cell-size )
-			]
-		]
-	]
-	
-	keep [ant: translate 224x224 rotate 180 16x16 [image img-ant]]
-]
-
-get-cell-color: func [wrd][
-    pick find board wrd 3 
+        repeat x n-cells [
+            keep compose [
+                ( make-id as-pair x y )
+                   fill-pen ( color1 )
+                box ( as-pair x - 1 * cell-size y - 1 * cell-size )
+                    ( as-pair     x * cell-size     y * cell-size )
+            ]
+        ]
+    ]
+    keep compose [
+        ant: translate ( pos * cell-size )
+        rotate 180 16x16 [ image img-ant ]
+    ]
 ]
 
 update-ant: does [
-    wrd: make-word pos
-    col: get-cell-color wrd
-;	print [color1 color2 col]
-	either col = color1 [
-	    pos: pos + pick [0x1 -1x0 0x-1 1x0] rot / 90 + 1
-	    rot: modulo rot + 90 360
-		col: color2
-	][
-	    pos: pos + pick [0x-1 1x0 0x1 -1x0] rot / 90 + 1
-	    rot: modulo rot - 90 360
-		col: color1
-	]
+    steps: steps + 1
+    steps-txt/text: rejoin [ "Steps: " steps ]
+    id: make-id pos
+	id-s: find board id
+    col: pick id-s 3
 
-	change at find board wrd 3 col
-	change at find board ant 2 pos - 1 * cell-size
-	change at find board ant 4 rot
-	
+    either col = color1 [
+        pos: pos + pick [ 0x1 -1x0 0x-1 1x0 ] rot / 90 + 1
+        rot: modulo rot + 90 360
+        col: color2
+    ][
+        pos: pos + pick [ 0x-1 1x0 0x1 -1x0 ] rot / 90 + 1
+        rot: modulo rot - 90 360
+        col: color1
+    ]
+
+    if any [
+        pos/x < 1
+        pos/y < 1
+        pos/x > n-cells
+        pos/y > n-cells
+    ][    
+        status/text: "The ant left the area" run: false
+    ]
+    change at id-s 3 col
+    change at ant 2 pos - 1 * cell-size
+    change at ant 4 rot
 ]
 
-view compose [
-    title "Langton's ant"
-	below
-    grid: base (1x1 * cell-size * n-cells) #9FAFFF 
-	draw board
-	rate 1 on-time [update-ant]
-	status: text 400x16 ""
-	return
-	below
-	spd: base 64x64 yello "1" all-over
-	on-wheel [
-	    speed: min 30 max 1 speed + to integer! event/picked 
-		spd/text: form speed
-		grid/rate: speed
-	]
-	on-over [
-	    either status/text = ""[
-		    status/text: "Turn the mouse wheel to change the animation speed"
-		][
-		    ""
-		]
-	] 
-	reset: button "Reset"
+reset: does [
+    pos: 1x1 * ( n-cells / 2 + 1 )
+    rot: 180
+    speed: 5
+    steps: 0
+    parse board [ any [ thru quote 'fill-pen change skip ( beige ) ] to end ]
+    grid/draw:  board
+    run: true
+]
 
-] 
+view compose/deep [
+    
+    title "Langton's ant"
+    
+    below
+    grid: base (1x1 * cell-size * n-cells) #9FAFFF 
+    draw board
+    rate (speed) on-time [ if run [ update-ant ] ]
+    
+    status: text 500x16
+    "Turn the mouse wheel over the yellow square to change the animation speed"
+    
+    return
+    below
+    
+    spd: base 64x64 yello ( to "" speed )
+    on-wheel [
+        speed: min 30 max 1 speed + to 1 event/picked 
+        spd/text: form speed
+        grid/rate: speed
+    ]
+
+    steps-txt: text "0"
+    reset-btn: button "Reset" [ reset ]
+]
