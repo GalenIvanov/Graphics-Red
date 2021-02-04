@@ -45,7 +45,7 @@ update-ant: does [
     col: pick id-series 3
 
     set [ col sign ] reduce pick [ [ color2 1 ] [ color1 -1 ] ] col = color1
-    	
+        
     pos: ( pick [ 0x1 -1x0 0x-1 1x0 ] rot / 90 + 1 ) * sign + pos
     rot: modulo ( sign * 90 + rot ) 360
 
@@ -58,7 +58,7 @@ update-ant: does [
         status/text: "The ant left the area. You can press Reset"
         run: false
     ]
-	
+    
     change at id-series 3 col
     change at ant 2 pos - 1 * cell-size
     change at ant 4 rot
@@ -72,8 +72,8 @@ reset: does [
     parse board [ any [ thru quote 'fill-pen change skip ( beige ) ] to end ]
     grid/draw:  board
     status/text: instr
-	grid/rate: speed
-	spd/text: to "" speed
+    grid/rate: speed
+    spd/text: to "" speed
     run: true
 ]
 
