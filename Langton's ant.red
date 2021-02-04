@@ -15,6 +15,7 @@ rot: 180
 speed: 5
 steps: 0
 run: true
+instr: "Turn the mouse wheel over the yellow square to change the animation speed"
 
 make-id: function [ pair ][ to set-word! rejoin ["c" pair] ]
 
@@ -40,7 +41,7 @@ update-ant: does [
     steps: steps + 1
     steps-txt/text: rejoin [ "Steps: " steps ]
     id: make-id pos
-	id-s: find board id
+    id-s: find board id
     col: pick id-s 3
 
     either col = color1 [
@@ -59,7 +60,8 @@ update-ant: does [
         pos/x > n-cells
         pos/y > n-cells
     ][    
-        status/text: "The ant left the area" run: false
+        status/text: "The ant left the area. You can press Reset"
+        run: false
     ]
     change at id-s 3 col
     change at ant 2 pos - 1 * cell-size
@@ -73,6 +75,7 @@ reset: does [
     steps: 0
     parse board [ any [ thru quote 'fill-pen change skip ( beige ) ] to end ]
     grid/draw:  board
+    status/text: instr
     run: true
 ]
 
@@ -85,8 +88,7 @@ view compose/deep [
     draw board
     rate (speed) on-time [ if run [ update-ant ] ]
     
-    status: text 500x16
-    "Turn the mouse wheel over the yellow square to change the animation speed"
+    status: text 500x16 ( instr )
     
     return
     below
