@@ -46,8 +46,11 @@ rules: [hex: [120 tri 120 tri 120 tri 120 tri 120 tri 120 tri]
 ;rules: [tri: [60 tri 60 tri 60 tri]]
 ;rules: [octa: [135 octa 135 square 135 octa 135 square 135 octa 135 square 135 octa 135 square]
 ;        square: [90 octa 90 octa 90 octa 90 octa] ]
-;conds: [x > 20 x < 480 y > 20 y < 480]
+;rules: [square: [90 tri 90 tri 90 tri 90 tri]
+;        tri: [60 square 60 tri 60 square]]
+;conds: [x > 40 x < 460 y > 40 y < 460]
 conds: [200 > sqrt (x - 250 * (x - 250) + (y - 250 * ( y - 250)))]	
+;conds: [ x + y > 250 x + y < 650 x - y > -150 x - y < 250 ]
 cells-to-check: make block! 1000
 
 num: 0
@@ -55,10 +58,12 @@ num: 0
 grid: [
     pen yello
 	box 0x0 500x500
+	line-width 2
+	fill-pen papaya
+	;box 40x40 460x460
 	circle 250x250 200
 	fill-pen beige
 	pen orange
-	line-width 3
 	polygon
 ]
 
@@ -112,7 +117,7 @@ get-new-cell-edges: func [
    		cell2: copy cell
 		move/part cell2 tail cell2 2
 	
-		cell-type: select rules to-set-word cell-type
+		cell-type: select rules to-set-word cell-type  ; needs anchor !
 
 		collect/into [
 		    repeat n to 1 (length? cell) / 2[
@@ -156,7 +161,6 @@ same-edge?: function [
 		1 > absolute e2/2 - e1/2
 		1 > absolute e2/3 - e1/3
 		1 > absolute e2/4 - e1/4
-		
 	][on][off]
 ]
 
@@ -239,7 +243,7 @@ make-cells: has [
 		    ][
                 edge/6: "Border"
                 if zero? n-to-go cell-id [remove find cells-to-check cell-id]
-		    			    ]
+		    ]
         ]
 		;make-cells
 	;]
@@ -275,9 +279,9 @@ init-cells: func [
 ]
 
 
-;init-cells rules conds 20 200 200 11 "square"
-init-cells rules conds 40 150 145 0 "hex"
-;init-cells rules conds 25 250 250 30 "hex"
+;init-cells rules conds 30 200 200 15 "square"
+init-cells rules conds 40 250 250 15 "hex"
+;init-cells rules conds 60 250 250 30 "tri"
 
 while [not empty? cells-to-check][make-cells]
 
@@ -287,8 +291,5 @@ view [
    title "Tilings"
    base 500x500 teal
    draw grid
-   button 60x20 "Next" [make-cells]
    
 ]
-
-;view[base 500x500 draw sq-grid]
