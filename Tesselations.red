@@ -41,13 +41,17 @@ cell-size: 0
 
 ;rules: [square: [90 square 90 square 90 square 90 square]] 
 ;rules: [hex: [120 hex 120 hex 120 hex 120 hex 120 hex 120 hex]]
-rules: [hex: [120 tri 120 tri 120 tri 120 tri 120 tri 120 tri]
-        tri: [60 hex 60 hex 60 hex]]
 ;rules: [tri: [60 tri 60 tri 60 tri]]
+;rules: [hex: [120 tri 120 tri 120 tri 120 tri 120 tri 120 tri]
+;        tri: [60 hex 60 hex 60 hex]]
 ;rules: [octa: [135 octa 135 square 135 octa 135 square 135 octa 135 square 135 octa 135 square]
 ;        square: [90 octa 90 octa 90 octa 90 octa] ]
 ;rules: [square: [90 tri 90 tri 90 tri 90 tri]
-;        tri: [60 square 60 tri 60 square]]
+;        tri: [60 tri 60 square 60 square]]
+
+rules: [hex: [120 square 120 square 120 square 120 square 120 square 120 square]
+        square: [90 tri 90 hex 90 tri 90 hex]
+		tri: [60 square 60 square 60 square]]
 ;conds: [x > 40 x < 460 y > 40 y < 460]
 conds: [200 > sqrt (x - 250 * (x - 250) + (y - 250 * ( y - 250)))]	
 ;conds: [ x + y > 250 x + y < 650 x - y > -150 x - y < 250 ]
@@ -88,7 +92,7 @@ pair-cell-coords: function [
 
 calc-cell-points: func[
     size      [integer!] 
-	x         [number!]  ;    vertex    [pair!]
+	x         [number!]  
 	y         [number!]
     angle     [number!]
 	cell-type [string!]
@@ -103,7 +107,7 @@ calc-cell-points: func[
 	    append cell reduce[x y]
 		x: (size * cosine ang) + x
 		y: y - (size * sine ang)
-		ang: ang + 180 - rot
+		ang: ang + 180 - rot  ; need to round it to the starting angle + possible steps!
 	]
 	cell
 ]
@@ -111,13 +115,15 @@ calc-cell-points: func[
 get-new-cell-edges: func [
     cell [block!]
 	cell-type [string!]
+	rules-offs [integer!]
 	/local 
-	n cell2
+	n cell2 cell-rules
 ][
    		cell2: copy cell
 		move/part cell2 tail cell2 2
 	
-		cell-type: select rules to-set-word cell-type  ; needs anchor !
+		cell-rules: select rules to-set-word cell-type  ; needs anchor !
+		move/part cell-rules tail cell-rules rules-offs - 2 
 
 		collect/into [
 		    repeat n to 1 (length? cell) / 2[
@@ -127,10 +133,11 @@ get-new-cell-edges: func [
 						cell/(n * 2)
 						cell2/(n * 2 - 1)
 						cell2/(n * 2)
-						to-string cell-type/(n * 2) "_"
+						to-string cell-rules/(n * 2) "_"
 					]
 		        ]
 			]
+			keep cell-type
 		] make block! 4 * length? cell
 ]
 
@@ -178,6 +185,8 @@ make-cells: has [
 	new-cell-edges
 	new-center
 	common-edge
+	caller   ; type of the mother cell
+	offs
 ][  
 
 	;if not empty? cells-to-check [
@@ -185,6 +194,7 @@ make-cells: has [
 	;    num: num + 1
 		cell-id: pick cells-to-check random length? cells-to-check
 		cell: select cells cell-id
+		caller: last cell
 
 		edge: cell
 		n: length? edge
@@ -224,10 +234,10 @@ make-cells: has [
 		    		edge/6: new-cell-id
 		    		if zero? n-to-go cell-id [remove find cells-to-check cell-id]
 		    		
-		    		;cell-type: to "" second select rules to-set-word edge/5
 					cell-type: edge/5
 					
-					append/only cells get-new-cell-edges new-cell cell-type
+					offs: index? find rules/(to set-word! cell-type) to set-word! caller 
+					append/only cells get-new-cell-edges new-cell cell-type offs 
 					
 					new-cell-edges: select cells new-cell-id
                     common-edge: reduce[edge/3 edge/4 edge/1 edge/2]
@@ -273,17 +283,21 @@ init-cells: func [
 	    append cells cell-name
 		append grid pair-cell-coords copy cell
 
-        append/only cells get-new-cell-edges cell cell-type
+        append/only cells get-new-cell-edges cell cell-type 0
+		
+		;append/only cells get-new-cell-edges cell 0
 		append cells-to-check cell-name
     ]	
 ]
 
 
-;init-cells rules conds 30 200 200 15 "square"
-init-cells rules conds 40 250 250 15 "hex"
-;init-cells rules conds 60 250 250 30 "tri"
+;init-cells rules conds 40 200 200 15 "square"
+;init-cells rules conds 34 250 250 15 "hex"
+init-cells rules conds 20 250 250 30 "tri"
+;init-cells rules conds 20 200 200 30 "octa"
 
 while [not empty? cells-to-check][make-cells]
+;loop 20[make-cells]
 
 ;print calc-center [6.0 60.0 100.0 60.0 100.0 20.0 60.0 20.0] cell-size / 2
 
@@ -291,5 +305,4 @@ view [
    title "Tilings"
    base 500x500 teal
    draw grid
-   
 ]
