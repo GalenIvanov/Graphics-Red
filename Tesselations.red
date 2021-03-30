@@ -49,11 +49,43 @@ cell-size: 0
 ;rules: [square: [90 tri 90 tri 90 tri 90 tri]
 ;        tri: [60 tri 60 square 60 square]]
 
-rules: [hex: [120 square 120 square 120 square 120 square 120 square 120 square]
-        square: [90 tri 90 hex 90 tri 90 hex]
-		tri: [60 square 60 square 60 square]]
+;rules: [hex: [120 square 120 square 120 square 120 square 120 square 120 square]
+;        square: [90 tri 90 hex 90 tri 90 hex]
+;		tri: [60 square 60 square 60 square]]
+
+;rules: [p12: [150 p3 150 p12 150 p3 150 p12 150 p3 150 p12 150 p3 150 p12 150 p3 150 p12 150 p3 150 p12]
+;        p3: [60 p12 60 p12 60 p12]]
+
+rules: [hex:  [120 tri1 120 tri1 120 tri1 120 tri1 120 tri1 120 tri1]
+        tri1: [60 hex 60 tri2 60 tri1]
+		tri2: [60 tri1 60 tri1 60 tri1]]
+
+;rules: [dodeca: [150 hex 150 square 150 hex 150 square 150 hex 150 square 150 hex 150 square 150 hex 150 square 150 hex 150 square ]
+;        hex: [120 dodeca 120 square 120 dodeca 120 square 120 dodeca 120 square]
+;		square: [90 dodeca 90 hex 90 dodeca 90 hex]]
+
+;rules: [sq1: [90 t1 90 t2 90 t3 90 t4]
+;        sq2: [90 t4 90 t1 90 t2 90 t3]
+;		t1:  [60 sq1 60 sq2 60 t3]
+;		t2:  [60 sq1 60 sq2 60 t4]
+;		t3:  [60 sq1 60 sq2 60 t1]
+;		t4:  [60 sq1 60 sq2 60 t2]]
+
+
+;rules: [sq1: [90 td1 90 sq2 90 tu1 90 sq2]
+;        sq2: [90 td2 90 sq1 90 tu2 90 sq1]  
+;		td1: [60 sq1 60 tu1 60 tu2]
+;        tu1: [60 sq1 60 td1 60 td2] 
+;		td2: [60 sq2 60 tu2 60 tu1] 
+;		tu2: [60 sq2 60 td2 60 td1] 
+;]
+
+	
+ 
+		
 ;conds: [x > 40 x < 460 y > 40 y < 460]
-conds: [200 > sqrt (x - 250 * (x - 250) + (y - 250 * ( y - 250)))]	
+conds: [x > 40 x < 560 y > 40 y < 560]
+;conds: [200 > sqrt (x - 250 * (x - 250) + (y - 250 * ( y - 250)))]	
 ;conds: [ x + y > 250 x + y < 650 x - y > -150 x - y < 250 ]
 cells-to-check: make block! 1000
 
@@ -61,13 +93,13 @@ num: 0
 
 grid: [
     pen yello
-	box 0x0 500x500
+	;box 0x0 500x500
 	line-width 2
-	fill-pen papaya
-	;box 40x40 460x460
-	circle 250x250 200
 	fill-pen beige
-	pen orange
+	;box 40x40 460x460
+	;circle 250x250 200
+	fill-pen pink
+	pen black
 	polygon
 ]
 
@@ -185,8 +217,9 @@ make-cells: has [
 	new-cell-edges
 	new-center
 	common-edge
-	caller   ; type of the mother cell
+	caller
 	offs
+	existing?
 ][  
 
 	;if not empty? cells-to-check [
@@ -214,48 +247,49 @@ make-cells: has [
 			
 		    either within-area? new-center conds [
 				new-cell-id: make-id new-center
-            
+				edge/6: new-cell-id
+				if zero? n-to-go cell-id [remove find cells-to-check cell-id]
+				existing?: false
+				
 		        either find cells new-cell-id [
-		    	    ;if cell-id = new-cell-id [print ["Boom!" cell-id]]
-		    		edge/6: new-cell-id
-		    		if zero? n-to-go cell-id [remove find cells-to-check cell-id]
-                    common-edge: reduce[edge/3 edge/4 edge/1 edge/2]
-                    new-cell-edges: select cells new-cell-id
-            
- 		    		while [not same-edge? copy/part new-cell-edges/1 4 common-edge][ 
- 		                new-cell-edges: next new-cell-edges
- 		            ]
-		    		new-cell-edges/1/6: cell-id
-		    		if zero? n-to-go new-cell-id [remove find cells-to-check new-cell-id]
+					existing?: true
                 ][
 		    	    append cells-to-check new-cell-id
 		    	    append cells new-cell-id
-
-		    		edge/6: new-cell-id
-		    		if zero? n-to-go cell-id [remove find cells-to-check cell-id]
 		    		
 					cell-type: edge/5
 					
 					offs: index? find rules/(to set-word! cell-type) to set-word! caller 
 					append/only cells get-new-cell-edges new-cell cell-type offs 
 					
-					new-cell-edges: select cells new-cell-id
-                    common-edge: reduce[edge/3 edge/4 edge/1 edge/2]
- 		    		while [not same-edge? copy/part new-cell-edges/1 4 common-edge][ 
- 		                new-cell-edges: next new-cell-edges
- 		            ]
-		    		new-cell-edges/1/6: cell-id
+		    	]
 				
+				new-cell-edges: select cells new-cell-id
+                common-edge: reduce[edge/3 edge/4 edge/1 edge/2]
+				while [not same-edge? copy/part new-cell-edges/1 4 common-edge][ 
+ 		                new-cell-edges: next new-cell-edges
+ 		        ]
+		    	new-cell-edges/1/6: cell-id
+				
+				either existing? [
+				    if zero? n-to-go new-cell-id [remove find cells-to-check new-cell-id]
+				][
+				    append grid 'fill-pen
+					;append grid beige
+					;append grid pick [pink leaf] #"s" = cell-type/1
+					;append grid pick [pink olive sky] index? find ["hex" "dodeca" "square"] cell-type
+					append grid pick [pink olive sky] index? find ["hex" "tri1" "tri2"] cell-type
 		    	    append grid 'polygon
                     append grid pair-cell-coords copy new-cell
-		    	]
+				
+				]
+				
 				
 		    ][
                 edge/6: "Border"
                 if zero? n-to-go cell-id [remove find cells-to-check cell-id]
 		    ]
         ]
-		;make-cells
 	;]
 ]
 
@@ -292,17 +326,24 @@ init-cells: func [
 
 
 ;init-cells rules conds 40 200 200 15 "square"
-;init-cells rules conds 34 250 250 15 "hex"
-init-cells rules conds 20 250 250 30 "tri"
+init-cells rules conds 44 250 250 15 "hex"
+;init-cells rules conds 20 250 250 30 "tri"
+;init-cells rules conds 20 250 250 30 "p12"
 ;init-cells rules conds 20 200 200 30 "octa"
+;init-cells rules conds 30 200 200 45 "sq1"
+;init-cells rules conds 30 200 200 45 "sq1"
+
 
 while [not empty? cells-to-check][make-cells]
-;loop 20[make-cells]
+;loop 10[make-cells]
 
 ;print calc-center [6.0 60.0 100.0 60.0 100.0 20.0 60.0 20.0] cell-size / 2
 
 view [
    title "Tilings"
-   base 500x500 teal
+   base 600x600 teal
    draw grid
+   
 ]
+
+;view[base 500x500 draw sq-grid]
