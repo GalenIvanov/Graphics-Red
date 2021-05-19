@@ -1,7 +1,7 @@
 Red [
     Title:  "Slime mold simulation, inspired by the work of Sebastian Lague"
     Author: "Galen Ivanov" 
-	Note:   "Needs compilation!"
+    Note:   "Needs compilation!"
     needs:  view
 ]
 
