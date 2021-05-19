@@ -23,4 +23,12 @@ A software cover of a [TokyoFlash watch](https://tokyoflash.com/collections/watc
 Langton's ant
 -
 A little project demonstrating the [Langton's ant](https://en.wikipedia.org/wiki/Langton%27s_ant) (a two-dimensional universal Turing machine)
+
 <img src="Langton's ant.png">
+
+
+Slime mold simulation
+-
+Inspired by the work of Sebastian Lague
+
+<img src="Slime_mold_simlation.png">
