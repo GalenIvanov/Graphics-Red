@@ -31,4 +31,4 @@ Slime mold simulation
 -
 Inspired by the work of Sebastian Lague
 
-<img src="Slime_mold_simlation.png">
+<img src="Slime-random-XY.png">
