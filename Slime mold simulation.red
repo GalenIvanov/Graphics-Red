@@ -6,11 +6,10 @@ Red [
 ]
 
 random/seed now
-W: 600
-H: 400
-N: 600
-delta: 22
-
+W: 800
+H: 600
+N: 1000
+delta: 32
 slime: make block! N * 4
 
 tbuf: #{}
@@ -22,10 +21,13 @@ init-slime: func [n] [
     collect [
         repeat i n [
             keep reduce [
-                random W   ; pos X
-                random H   ; pos Y
-                random 360 ; angle
-                3 + random 3    ; speed
+                random W     ; pos X
+                random H     ; pos Y
+                ;W / 2        ; pos X - cebter 
+                ;H / 2        ; pos Y - center
+                random 360   ; angle
+                3 + random 3  ; speed
+                200.80.20 + random 55.25.20 ; color 
             ]
         ]
     ]
@@ -53,7 +55,7 @@ init-slime: func [n] [
                 idx: idx + 1
                 dst: dst + 1
             ]
-            src: src + (3 * w)
+            src: src + w3
         ]
         src: (as byte-ptr! s/offset)
         dst: (as byte-ptr! d/offset)
@@ -83,18 +85,20 @@ blur: routine[
     rsblur buf width height tbuf
 ]
 
-update-slime: func[
-    /local pix offs lines xl xc xr yl yc yr cl cc cr rnd
+update-slime: has[
+    pix offs lines xl xc xr yl yc yr cl cc cr
 ][
     offs: 1
     lines: collect [
-        keep [line-width 2 pen orange]
-        foreach [x y a s] slime [
+        keep [line-width 1]         
+        foreach [x y a s c] slime [
+            keep compose[pen (c)]
+
             keep 'line
             keep as-pair to 1 x to 1 y
-
-            a: a + 2 - random 4
             
+            a: a + 2 - random 3
+           
             xc: x + (s * cosine a)
             yc: y - (s * sine a)
             cc: img/(as-pair xc yc)
@@ -108,14 +112,14 @@ update-slime: func[
             cr: img/(as-pair xr yr)
             
             set [x y a] copy/part sort/reverse/skip/compare reduce [
-                xl yl a - delta cl
                 xc yc a cc
+                xl yl a - delta cl
                 xr yr a + delta cr
             ] 4 4 3
             
             slime/(offs + 2): a
             
-        case [
+            case [  ; reflect
                 x < 1 [x: 1 slime/(offs + 2): 540 - a]
                 x > W [x: W slime/(offs + 2): 180 - a]
                 y < 1 [y: 1 slime/(offs + 2): 360 - a]
@@ -124,7 +128,7 @@ update-slime: func[
             keep as-pair to 1 x to 1 y
             slime/:offs: x
             slime/(offs + 1): y
-            offs: offs + 4
+            offs: offs + 5
         ]
     ]
 
@@ -137,6 +141,7 @@ update-slime: func[
 
 img: make image! compose[(as-pair W H) 0.0.0]
 slime: init-slime N
+
 
 view compose/deep [
     title "Slime simulation"
