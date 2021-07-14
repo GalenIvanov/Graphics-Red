@@ -37,4 +37,4 @@ Leaf-shaped Truchet tiles
 -
 A simple variation of simple Truchet tiles, where the diagonal lines are replaced by "leaves"
 
-<img-src="Leaf-Truchet.png">
+<img src="Leaf-Truchet.png">
