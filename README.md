@@ -32,3 +32,9 @@ Slime mold simulation
 Inspired by the work of Sebastian Lague
 
 <img src="Slime-random-XY.png">
+
+Leaf-shaped Truchet tiles
+-
+A simple variation of simple Truchet tiles, where the diagonal lines are replaced by "leaves"
+
+<img-src="Leaf-Truchet.png">
