@@ -101,7 +101,7 @@ render-cell: function [
     truchet: truchet + diam
     diag: truchet + diag
     
-    skp: random 4
+    skp: random 3
     move/part cell tail cell 2 * skp
     
     sel: random 99
@@ -153,7 +153,7 @@ render-cell: function [
             ]    
         ]
     ]
-    move/part at tail cell 0 - skp * 2 cell 2 * skp
+    move/part at tail cell skp * -2 cell 2 * skp
     grid
 ]
 
