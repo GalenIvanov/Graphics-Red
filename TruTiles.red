@@ -217,7 +217,7 @@ within-area?: function [
         y: cell-center/y
     ]    
     bind conds cell-xy        ; isn't it slow to bind it each time?
-	to-logic all conds
+    to-logic all conds
 ] 
 
 n-to-go: func[c-id][
@@ -256,7 +256,6 @@ make-cells: has [
     either zero? n [    ; selected cell has all edges processed
         remove find cells-to-check cell-id
     ][
-    
         edge: edge/1
         ang: 180 - arctangent2 edge/4 - edge/2 edge/3 - edge/1
         new-cell: calc-cell-points cell-size edge/3 edge/4 ang edge/5
@@ -391,8 +390,8 @@ render-grid: has [sp time][
     random/seed rndseed
     foreach c coords [append grid render-cell c prop]
     draw big-img grid
-    time: replace/all form now/time ":" "-"
-    save rejoin [%TruTiles- now/date "-" time ".png"] big-img
+    ;time: replace/all form now/time ":" "-"
+    ;save rejoin [%TruTiles- now/date "-" time ".png"] big-img
 ]
 
 update-clr: function [
@@ -514,8 +513,10 @@ view compose/deep [
         t-diag: text (form r-diag) 30x20
     ] return
     pad 0x10
-    f-rand: field 100x25 hint "Random seed"
-    go: button 190x25 "Render" [update-params render-grid]
+    f-rand: field 90x25 hint "Random seed"
+    button 95x25 "Render" [update-params render-grid]
+    button 95x25 "Save .png"
+    [save/as request-file/save/file/filter %TruTiles.png [%png] big-img 'png]
     
     space 5x2
     below return
