@@ -33,14 +33,15 @@ Inspired by the work of Sebastian Lague
 
 <img src="Slime-random-XY.png">
 
-TruTiles
--
-Pattern generator
-
-<mg src="TruTiles.png">
 
 Leaf-shaped Truchet tiles
 -
 A simple variation of simple Truchet tiles, where the diagonal lines are replaced by "leaves"
 
 <img src="Leaf-Truchet.png">
+
+TruTiles
+-
+Pattern generator
+
+<mg src="TruTiles.png">
