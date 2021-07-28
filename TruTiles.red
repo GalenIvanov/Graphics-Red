@@ -151,7 +151,6 @@ render-cell: function [
             foreach [x y] cell [
                 append grid reduce ['line offs + as-pair x y offs + as-pair cx cy]
             ]    
-            
         ]
     ]
     move/part at tail cell 0 - skp * 2 cell 2 * skp
@@ -187,7 +186,7 @@ get-new-cell-edges: func [
     /local 
     n cell2 cell-rules
 ][
-           cell2: copy cell
+        cell2: copy cell
         move/part cell2 tail cell2 2
     
         cell-rules: select rules to-set-word cell-type 
@@ -218,7 +217,7 @@ within-area?: function [
         y: cell-center/y
     ]    
     bind conds cell-xy        ; isn't it slow to bind it each time?
-    either all conds [ yes ] [ no ]
+	to-logic all conds
 ] 
 
 n-to-go: func[c-id][
