@@ -42,7 +42,7 @@ A simple variation of simple Truchet tiles, where the diagonal lines are replace
 
 TruTiles
 -
-Pattern generator. it creates a grid of tiles (the 3 regular and another 6 semiregular tesselations og the plane) and renders each tile with a mix of 5 styles: 
+Pattern generator. It creates a grid of tiles (the 3 regular and another 6 semiregular tesselations of the plane) and renders each tile with a mix of 5 styles: 
 - Tile: the outline of the tile
 - Dual: lines from the centers of the edges to the center of the tile
 - Diamond: lines connecting the centers of the edges
