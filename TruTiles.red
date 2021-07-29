@@ -56,6 +56,8 @@ r-tile: 100
 r-dual: r-diam: r-truchet: r-diag: 0
 rndseed: 0
 bg: on
+prog-c: [r3 7.8 r4 4 r6 2.2 r6-3 3.5 r6-4-3 4 r8-4 1.9 r12-3 1.5 r4-3 5.8 r4-3a 5.8]
+
 
 grid-header: [
     line-cap round
@@ -74,7 +76,7 @@ grid-front: [
     color: pen snow
 ]
 
-frame: [line-width 5 pen yellow box 0x0 64x64]
+frame: [line-width 5 pen yellow box 0x0 70x70]
 
 calc-center: function [
     coords [block!] {a block with coordinates [x1 y1 x2 y2 ... xn yn]}
@@ -274,7 +276,7 @@ make-cells: has [
                 append cells-to-check new-cell-id
                 append cells new-cell-id
                 offs: index? find rules/(to set-word! cell-type) to set-word! caller 
-                append/only cells get-new-cell-edges new-cell cell-type offs 
+                append/only cells get-new-cell-edges new-cell cell-type offs
             ]
             
             new-cell-edges: select cells new-cell-id
@@ -336,7 +338,7 @@ make-thumbs: does [
         init-cells get rule conds-thumbs size 30 30 0
         while [not empty? cells-to-check][make-cells]
         img: to-word rejoin [rule "-img"]
-        set img make image! [64x64 0.0.0.255]
+        set img make image! [70x70 0.0.0.255]
         grid: copy grid-header
         foreach c draw-cells [append grid render-cell c prop]
         draw get img grid
@@ -357,11 +359,18 @@ select-thumb: func [
 ]
 ;init-cells rules conds 50 150 150 0 "tri"
 
-update-params: does [
+render-grid: has [
+    sp count n
+][
     rndseed: either empty? rs: f-rand/text [0][to-integer rs]
-]
-
-render-grid: has [sp time][
+    
+    count: 2000 / cell-sz * (1000 / cell-sz)
+    n: 0
+    prog/data: 0
+        
+    count: count * (select prog-c cur-rule)
+    unless shadow? [count: to-integer count * 0.66]
+        
     prop: reduce [r-tile r-dual r-diam r-truchet r-diag]
     either zero? sp: sum prop [
         prop: [20 20 20 20 20]
@@ -373,25 +382,37 @@ render-grid: has [sp time][
     
     big-img: make image! [1920x1080 0.0.0.255]
     init-cells get cur-rule conds-big cell-sz 400 400 rotation
-    while [not empty? cells-to-check][make-cells]
+    while [not empty? cells-to-check][
+        make-cells
+        n: n + 1
+        prog/data: n / count
+    ]
+    
     random/seed rndseed
     coords: draw-cells
     clear grid
-    append grid compose [fill-pen (bgcolor) box 0x0 1920x1080 line-cap round line-join round]
+    append clear grid compose [fill-pen (bgcolor) box 0x0 1920x1080 line-cap round line-join round]
     bg: on
     if shadow? [
         append grid compose [line-width (shadowsz) pen (shadowcolor)]
-        foreach c coords [append grid render-cell c prop]
+        foreach c coords [
+            append grid render-cell c prop
+            n: n + 1
+            prog/data: n / count
+        ]
     ]
     bg: off
     change at find grid-front 'color 3 line-color
     change at find grid-front 'thick 3 cell-width
     append grid grid-front
     random/seed rndseed
-    foreach c coords [append grid render-cell c prop]
+    foreach c coords [
+        append grid render-cell c prop
+        n: n + 1
+        prog/data: n / count
+    ]
     draw big-img grid
-    ;time: replace/all form now/time ":" "-"
-    ;save rejoin [%TruTiles- now/date "-" time ".png"] big-img
+    ;prog/data: 0%
 ]
 
 update-clr: function [
@@ -450,11 +471,19 @@ get-color: func [
 make-thumbs
 cur-rule: 'r4
 line-color: 42.120.150
-render-grid
+;render-grid
 
 view compose/deep [
     title "TruTiles"
     space 5x5
+    presets: drop-list 245x20
+    button 45x23 "Load"
+    return
+    preset: field 245x23
+    button 45x23 "Save"
+    return
+    
+    
     group-box [
         across middle
         text "Cell Size" sl-size: slider 132x20 17.5%
@@ -480,7 +509,8 @@ view compose/deep [
         t-bgcolor: text (form bgcolor) 60x20
     ] return
     group-box [
-        tshadow: toggle "Shadow" 65x20 off [shadow?: tshadow/data]
+        ;tshadow: toggle "Shadow" 65x20 off [shadow?: tshadow/data]
+        tshadow: check "Shadow" 65x20 off [shadow?: tshadow/data]
         text "Shadow Color" b-shadowcolor: base 25x25 white
         on-up [
             b-shadowcolor/color: get-color b-shadowcolor 'shadowcolor
@@ -512,25 +542,28 @@ view compose/deep [
         [t-diag/text: form r-diag: to-integer 100 * sl-diag/data]
         t-diag: text (form r-diag) 30x20
     ] return
-    pad 0x10
-    f-rand: field 90x25 hint "Random seed"
-    button 95x25 "Render" [update-params render-grid]
+    ;pad 0x10
+    f-rand: field 95x25 hint "Random seed"
+    button 95x25 "Render" [render-grid]
     button 95x25 "Save .png"
     [save/as request-file/save/file/filter %TruTiles.png [%png] big-img 'png]
+    return
+    prog: progress 300x10 0%
     
-    space 5x2
+    space 2x2
     below return
-    b-r3:     base 64x64 draw [image (r3-img)]        [select-thumb 'r3]
-    b-r4:     base 64x64 draw [image (r4-img)(frame)] [select-thumb 'r4]
-    b-r6:     base 64x64 draw [image (r6-img)]        [select-thumb 'r6] 
-    b-r6-3:   base 64x64 draw [image (r6-3-img)]      [select-thumb 'r6-3]
-    b-r6-4-3: base 64x64 draw [image (r6-4-3-img)]    [select-thumb 'r6-4-3]
-    b-r8-4:   base 64x64 draw [image (r8-4-img)]      [select-thumb 'r8-4]  
-    b-r12-3:  base 64x64 draw [image (r12-3-img)]     [select-thumb 'r12-3]
-    b-r4-3:   base 64x64 draw [image (r4-3-img)]      [select-thumb 'r4-3]
-    b-r4-3a:  base 64x64 draw [image (r4-3a-img)]     [select-thumb 'r4-3a] 
+    b-r4:     base 70x70 draw [image (r4-img)(frame)] [select-thumb 'r4]
+    b-r3:     base 70x70 draw [image (r3-img)]        [select-thumb 'r3]
+    b-r6:     base 70x70 draw [image (r6-img)]        [select-thumb 'r6] 
+    b-r6-3:   base 70x70 draw [image (r6-3-img)]      [select-thumb 'r6-3]
+    b-r6-4-3: base 70x70 draw [image (r6-4-3-img)]    [select-thumb 'r6-4-3]
+    b-r8-4:   base 70x70 draw [image (r8-4-img)]      [select-thumb 'r8-4]  
+    b-r12-3:  base 70x70 draw [image (r12-3-img)]     [select-thumb 'r12-3]
+    b-r4-3:   base 70x70 draw [image (r4-3-img)]      [select-thumb 'r4-3]
+    b-r4-3a:  base 70x70 draw [image (r4-3a-img)]     [select-thumb 'r4-3a] 
     space 8x5
     return
-    base 800x590 
+    scr: base 800x645 
     draw grid
+    on-create [render-grid]
  ]
