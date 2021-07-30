@@ -35,8 +35,9 @@ r4-3a:  [sq1: [90 td1 90 sq2 90 tu1 90 sq2]
 all-rules: [r3 20 r4 15 r6 10 r6-3 10 r6-4-3 8 r8-4 8 r12-3 7 r4-3 12 r4-3a 12]
 rules: make block! 100
 conds: make block! 100        
-conds-thumbs: [x > -20 x < 85 y > -20 y < 85]
-conds-big: [x > -100 x < 2050 y > -100 y < 1150]
+
+conds-thumbs: [x > -200 x < 850 y > -200 y < 850]  ; 10x bigger ! 
+conds-big: [x > -1000 x < 20500 y > -1000 y < 11500] ; 10x bigger !
 cells-to-check: make block! 10000
 grid: make block! 10000
 coords: make block! 10000
@@ -63,7 +64,7 @@ grid-header: [
     line-cap round
     line-join round
     pen aqua
-    thick: line-width 1
+    thick: line-width 5
     fill-pen aqua
     box 0x0 1920x1080
     fill-pen 0.0.0.255
@@ -91,6 +92,7 @@ render-cell: function [
     cell [block!]
     freq [block!]
 ][
+    grd: copy [scale 0.1 0.1]
     grid: copy []
 
     len: (length? cell) / 2
@@ -111,7 +113,7 @@ render-cell: function [
     cy: to-integer average extract next cell 2
     
     offs: either bg [shadowoffs][0x0]
-    
+
     case [
         sel <= orig [
             append grid 'polygon
@@ -146,7 +148,7 @@ render-cell: function [
                 y2: any [y2 cell/2]
                 cntr: offs + as-pair to-integer x2 to-integer y2
                 bgn: 179 + modulo to integer!(arctangent2 y2 - y1 x2 - x1) 360
-                append grid reduce ['arc cntr 1x1 * cell-size / 2 bgn stretch]
+                append grid reduce ['arc cntr 10x10 * cell-size / 2 bgn stretch]
             ]
         ]    
         sel > truchet [
@@ -155,8 +157,9 @@ render-cell: function [
             ]    
         ]
     ]
-    move/part at tail cell skp * -2 cell 2 * skp
-    grid
+    move/part at tail cell -2 * skp cell 2 * skp
+    append/only grd grid
+    grd
 ]
 
 calc-cell-points: func[
@@ -260,7 +263,7 @@ make-cells: has [
     ][
         edge: edge/1
         ang: 180 - arctangent2 edge/4 - edge/2 edge/3 - edge/1
-        new-cell: calc-cell-points cell-size edge/3 edge/4 ang edge/5
+        new-cell: calc-cell-points 10 * cell-size edge/3 edge/4 ang edge/5
         new-center: calc-center new-cell 2
         cell-type: edge/5
         
@@ -322,7 +325,7 @@ init-cells: func [
     cell-size: size
     cell-type: to-string new-rules/1
     
-    cell: calc-cell-points size posX posY rot cell-type
+    cell: calc-cell-points 10 * size posX posY rot cell-type
     cell-center: calc-center cell 2
     
     if within-area? cell-center conds [
@@ -364,11 +367,11 @@ render-grid: has [
 ][
     rndseed: either empty? rs: f-rand/text [0][to-integer rs]
     
-    count: 2000 / cell-sz * (1000 / cell-sz)
+    count: 2000 / cell-sz * (1000 / cell-sz)  
     n: 0
     prog/data: 0
-        
-    count: count * (select prog-c cur-rule)
+       
+    count: count * (select prog-c cur-rule)   ; ; progress etimate
     unless shadow? [count: to-integer count * 0.66]
         
     prop: reduce [r-tile r-dual r-diam r-truchet r-diag]
@@ -381,7 +384,7 @@ render-grid: has [
     forall prop [prop/1: to-integer norm * prop/1]
     
     big-img: make image! [1920x1080 0.0.0.255]
-    init-cells get cur-rule conds-big cell-sz 400 400 rotation
+    init-cells get cur-rule conds-big cell-sz 5000 5000 rotation
     while [not empty? cells-to-check][
         make-cells
         n: n + 1
@@ -394,7 +397,7 @@ render-grid: has [
     append clear grid compose [fill-pen (bgcolor) box 0x0 1920x1080 line-cap round line-join round]
     bg: on
     if shadow? [
-        append grid compose [line-width (shadowsz) pen (shadowcolor)]
+        append grid compose [line-width (10 * shadowsz) pen (shadowcolor)]
         foreach c coords [
             append grid render-cell c prop
             n: n + 1
@@ -403,7 +406,7 @@ render-grid: has [
     ]
     bg: off
     change at find grid-front 'color 3 line-color
-    change at find grid-front 'thick 3 cell-width
+    change at find grid-front 'thick 3 10 * cell-width
     append grid grid-front
     random/seed rndseed
     foreach c coords [
@@ -412,7 +415,6 @@ render-grid: has [
         prog/data: n / count
     ]
     draw big-img grid
-    ;prog/data: 0%
 ]
 
 update-clr: function [
@@ -439,24 +441,35 @@ get-color: func [
         title "Pick a color" 
         across
         b-red: base 25x25 red
-        sl-red: slider 256x25 (r)
-        [f-red/text: to-string to-integer 255 * sl-red/data
-        clr/color: update-clr sl-red/data sl-green/data sl-blue/data]
-        f-red: field 32x25 (to-string col/1)
+        sl-red: slider 256x25 (r) [
+            f-red/data: to-integer 255 * sl-red/data
+            clr/color: update-clr sl-red/data sl-green/data sl-blue/data
+        ]
+        f-red: field 32x25 (to-string col/1) on-key-up [
+            sl-red/data: (any [f-red/data 0]) / 255
+            clr/color: update-clr sl-red/data sl-green/data sl-blue/data
+        ]
         return
         b-green: base 25x25 green
-        sl-green: slider 256x25 (g)
-        [f-green/text: to-string to-integer 255 * sl-green/data
-        clr/color: update-clr sl-red/data sl-green/data sl-blue/data]
-        f-green: field 32x25 (to-string col/2)
+        sl-green: slider 256x25 (g) [
+            f-green/data: to-integer 255 * sl-green/data
+            clr/color: update-clr sl-red/data sl-green/data sl-blue/data
+        ]
+        f-green: field 32x25 (to-string col/2) on-key-up [
+            sl-green/data: (any [f-green/data 0]) / 255
+            clr/color: update-clr sl-red/data sl-green/data sl-blue/data
+        ]
         return
         b-blue: base 25x25 blue
-        sl-blue: slider 256x25 (b)
-        [f-blue/text: to-string to-integer 255 * sl-blue/data
-        clr/color: update-clr sl-red/data sl-green/data sl-blue/data]
-        f-blue: field 32x25 (to-string col/3)
+        sl-blue: slider 256x25 (b) [
+            f-blue/data: to-integer 255 * sl-blue/data
+            clr/color: update-clr sl-red/data sl-green/data sl-blue/data
+        ]
+        f-blue: field 32x25 (to-string col/3) on-key-up [
+            sl-blue/data: (any [f-blue/data 0]) / 255
+            clr/color: update-clr sl-red/data sl-green/data sl-blue/data
+        ]
         return
-        
         clr: base 260x60 (col)
         below 
         button 60x25 "Cancel" [unview]
@@ -487,68 +500,68 @@ view compose/deep [
     group-box [
         across middle
         text "Cell Size" sl-size: slider 132x20 17.5%
-        [t-size/text: form cell-sz: round/to to-integer 200 * sl-size/data + 15 1]
+        [t-size/data: cell-sz: round/to to-integer 200 * sl-size/data + 15 1]
         t-size: text (form cell-sz) 40x20 return
         text "Rotation" sl-rotation: slider 132x20 0%
-        [t-rot/text: form rotation: to-integer 120 * sl-rotation/data]
+        [t-rot/data: rotation: to-integer 120 * sl-rotation/data]
         t-rot: text (form rotation) 30x20 return
         text "Line Width" sl-thick: slider 132x20 5%
-        [t-line/text: form cell-width: to-integer 50 * sl-thick/data + 1]
+        [t-line/data: cell-width: to-integer 50 * sl-thick/data + 1]
         t-line: text (form cell-width) 32x20 return
         text "Line Color" b-linecolor: base 25x25 42.120.150
         on-up [
             b-linecolor/color: get-color b-linecolor 'line-color
-            t-linecolor/text: form line-color
+            t-linecolor/data: line-color
         ]
         t-linecolor: text (form line-color) 60x20 return
         text "Background" b-bgcolor: base 25x25 aqua
         on-up [
             b-bgcolor/color: get-color b-bgcolor 'bgcolor
-            t-bgcolor/text: form bgcolor
+            t-bgcolor/data: bgcolor
         ]
         t-bgcolor: text (form bgcolor) 60x20
     ] return
     group-box [
-        ;tshadow: toggle "Shadow" 65x20 off [shadow?: tshadow/data]
         tshadow: check "Shadow" 65x20 off [shadow?: tshadow/data]
         text "Shadow Color" b-shadowcolor: base 25x25 white
         on-up [
             b-shadowcolor/color: get-color b-shadowcolor 'shadowcolor
-            t-shadowcolor/text: form shadowcolor
+            t-shadowcolor/data: shadowcolor
         ]
         t-shadowcolor: text (form shadowcolor) 60x20
         return
         text "Shadow Width" sl-shadsz: slider 132x20 14%
-        [t-shadowsz/text: form shadowsz: to-integer 50 * sl-shadsz/data + 1]
+        [t-shadowsz/data:  shadowsz: to-integer 50 * sl-shadsz/data + 1]
         t-shadowsz: text (form shadowsz) 30x20 return
         text "Shadow Offset" sl-shadoffs: slider 132x20 50%
-        [t-shadowoffs/text: form shadowoffs: 50x50 * sl-shadoffs/data - 25x25]
-        t-shadowoffs: text (form shadowoffs) 40x20 return
+        [shadowoffs: 500x500 * sl-shadoffs/data - 250x250
+        t-shadowoffs/data: to-integer shadowoffs/x / 10]
+        t-shadowoffs: text "0" 40x20 return
     ] return
     group-box [
         text "Tile" sl-tile: slider 132x20 100%
-        [t-tile/text: form r-tile: to-integer 100 * sl-tile/data]
+        [t-tile/data:  r-tile: to-integer 100 * sl-tile/data]
         t-tile: text (form r-tile) 40x20 return
         text "Dual" sl-dual: slider 132x20
-        [t-dual/text: form r-dual: to-integer 100 * sl-dual/data]
+        [t-dual/data: r-dual: to-integer 100 * sl-dual/data]
         t-dual: text (form r-dual) 30x20 return
         text "Diamond" sl-diam: slider 132x20
-        [t-diam/text: form r-diam: to-integer 100 * sl-diam/data]
+        [t-diam/data: r-diam: to-integer 100 * sl-diam/data]
         t-diam: text (form r-diam) 30x20 return
         text "Truchet" sl-truchet: slider 132x20
-        [t-truchet/text: form r-truchet: to-integer 100 * sl-truchet/data]
+        [t-truchet/data: r-truchet: to-integer 100 * sl-truchet/data]
         t-truchet: text (form r-truchet) 30x20 return
         text "Diagonal" sl-diag: slider 132x20
-        [t-diag/text: form r-diag: to-integer 100 * sl-diag/data]
+        [t-diag/data: r-diag: to-integer 100 * sl-diag/data]
         t-diag: text (form r-diag) 30x20
     ] return
-    ;pad 0x10
+
     f-rand: field 95x25 hint "Random seed"
     button 95x25 "Render" [render-grid]
     button 95x25 "Save .png"
     [save/as request-file/save/file/filter %TruTiles.png [%png] big-img 'png]
     return
-    prog: progress 300x10 0%
+    prog: progress 300x5 0%
     
     space 2x2
     below return
