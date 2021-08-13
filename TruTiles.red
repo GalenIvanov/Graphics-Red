@@ -51,7 +51,7 @@ line-color: white
 bgcolor: aqua
 shadow?: off
 shadowcolor: white
-shadowsz: 7
+shadowsz: 9
 shadowoffs: 0x0
 r-tile: 100
 r-dual: r-diam: r-truchet: r-diag: 0
@@ -113,7 +113,7 @@ render-cell: function [
     cy: to-integer average extract next cell 2
     
     offs: either bg [shadowoffs][0x0]
-
+    
     case [
         sel <= orig [
             append grid 'polygon
@@ -195,7 +195,7 @@ get-new-cell-edges: func [
         move/part cell2 tail cell2 2
     
         cell-rules: select rules to-set-word cell-type 
-        move/part cell-rules tail cell-rules rules-offs - 2 
+        move/part cell-rules tail cell-rules rules-offs - 2
 
         collect/into [
             repeat n to 1 (length? cell) / 2[
@@ -484,10 +484,10 @@ get-color: func [
 make-thumbs
 cur-rule: 'r4
 line-color: 42.120.150
-;render-grid
 
 view compose/deep [
     title "TruTiles"
+    
     space 5x5
     presets: drop-list 245x20
     button 45x23 "Load"
@@ -495,7 +495,6 @@ view compose/deep [
     preset: field 245x23
     button 45x23 "Save"
     return
-    
     
     group-box [
         across middle
@@ -530,7 +529,7 @@ view compose/deep [
         ]
         t-shadowcolor: text (form shadowcolor) 60x20
         return
-        text "Shadow Width" sl-shadsz: slider 132x20 14%
+        text "Shadow Width" sl-shadsz: slider 132x20 18%
         [t-shadowsz/data:  shadowsz: to-integer 50 * sl-shadsz/data + 1]
         t-shadowsz: text (form shadowsz) 30x20 return
         text "Shadow Offset" sl-shadoffs: slider 132x20 50%
@@ -579,4 +578,4 @@ view compose/deep [
     scr: base 800x645 
     draw grid
     on-create [render-grid]
- ]
+ ] 
