@@ -34,10 +34,10 @@ r4-3a:  [sq1: [90 td1 90 sq2 90 tu1 90 sq2]
          
 all-rules: [r3 20 r4 15 r6 10 r6-3 10 r6-4-3 8 r8-4 8 r12-3 7 r4-3 12 r4-3a 12]
 rules: make block! 100
-conds: make block! 100        
-
-conds-thumbs: [x > -200 x < 850 y > -200 y < 850]  ; 10x bigger ! 
-conds-big: [x > -1000 x < 20500 y > -1000 y < 11500] ; 10x bigger !
+;conds: make block! 100
+conds-thumbs: [x > 0 x < 70 y > 0 y < 70] 
+conds-screen: [x > 0 x < 800 y > 0 y < 645]
+conds-big: [x > 0 x < 1920 y > 0 y < 1080]
 cells-to-check: make block! 10000
 grid: make block! 10000
 coords: make block! 10000
@@ -213,17 +213,7 @@ get-new-cell-edges: func [
         ] make block! 4 * length? cell
 ]
 
-within-area?: function [
-    cell-center  [pair!]
-    conds [block!]
-][
-    cell-xy: make object! [
-        x: cell-center/x
-        y: cell-center/y
-    ]    
-    bind conds cell-xy        ; isn't it slow to bind it each time?
-    to-logic all conds
-] 
+check-boundaries: none  ; will be a function
 
 n-to-go: func[c-id][
     c-cell: copy select cells c-id
@@ -267,7 +257,7 @@ make-cells: has [
         new-center: calc-center new-cell 2
         cell-type: edge/5
         
-        either within-area? new-center conds [
+        either check-boundaries new-center [
             new-cell-id: make-id new-center
             edge/6: new-cell-id
             if zero? n-to-go cell-id [remove find cells-to-check cell-id]
@@ -298,7 +288,7 @@ make-cells: has [
 ]
 
 draw-cells: has [
-    a b edges
+    cell edge
 ][
     collect [
         foreach [_ cell] head cells [
@@ -316,19 +306,30 @@ init-cells: func [
     posX      [number!]
     posY      [number!]
     rot       [integer!]
-    /local cell cell-center n edges cell-name cell-type
+    /local cell cell-center n edges cell-name cell-type cond-out 
 ][
     random/seed rndseed
     clear head cells
     rules: copy new-rules
     conds: copy new-conds
+    
+    cond-out: to integer! size * (length? rules/2) / 4 * 10 
+
+    conds/3: 0 - cond-out
+    conds/6: conds/6 * 10 + cond-out
+    conds/9: 0 - cond-out
+    conds/12: conds/12 * 10 + cond-out
+    
+    ; make a function to check either the cell is in the boundaries set by cond 
+    check-boundaries: func [p] [x: p/x y: p/y to-logic all conds]
+    
     cell-size: size
     cell-type: to-string new-rules/1
     
     cell: calc-cell-points 10 * size posX posY rot cell-type
     cell-center: calc-center cell 2
     
-    if within-area? cell-center conds [
+    if check-boundaries cell-center [
         cell-name: make-id cell-center
         append cells cell-name
         append/only cells get-new-cell-edges cell cell-type 0
@@ -345,7 +346,7 @@ make-thumbs: does [
         grid: copy grid-header
         foreach c draw-cells [append grid render-cell c prop]
         draw get img grid
-    ]    
+    ]
 ]
 
 select-thumb: func [
@@ -362,16 +363,18 @@ select-thumb: func [
 ]
 ;init-cells rules conds 50 150 150 0 "tri"
 
-render-grid: has [
-    sp count n
+render-grid: func [
+    img? [logic!]   ; render to screen or file?
+    /local sp count n t1 t2 cond
 ][
+    t1: now/time/precise
     rndseed: either empty? rs: f-rand/text [0][to-integer rs]
     
     count: 2000 / cell-sz * (1000 / cell-sz)  
     n: 0
     prog/data: 0
        
-    count: count * (select prog-c cur-rule)   ; ; progress etimate
+    count: count * (select prog-c cur-rule)   ; ; progress etimate   !!! - I need to update them
     unless shadow? [count: to-integer count * 0.66]
         
     prop: reduce [r-tile r-dual r-diam r-truchet r-diag]
@@ -384,7 +387,13 @@ render-grid: has [
     forall prop [prop/1: to-integer norm * prop/1]
     
     big-img: make image! [1920x1080 0.0.0.255]
-    init-cells get cur-rule conds-big cell-sz 5000 5000 rotation
+    
+    ;probe conds
+    ;probe conds-screen
+    
+    cond: either img? [conds-big][conds-screen]
+    ;init-cells get cur-rule conds-big cell-sz 5000 5000 rotation
+    init-cells get cur-rule cond cell-sz 5000 5000 rotation
     while [not empty? cells-to-check][
         make-cells
         n: n + 1
@@ -414,6 +423,8 @@ render-grid: has [
         n: n + 1
         prog/data: n / count
     ]
+    t2: now/time/precise
+    print ["Image generated for" t2 - t1 "seconds"]
     draw big-img grid
 ]
 
@@ -556,9 +567,9 @@ view compose/deep [
     ] return
 
     f-rand: field 95x25 hint "Random seed"
-    button 95x25 "Render" [render-grid]
+    button 95x25 "Render" [render-grid false]
     button 95x25 "Save .png"
-    [save/as request-file/save/file/filter %TruTiles.png [%png] big-img 'png]
+    [render-grid true save/as request-file/save/file/filter %TruTiles.png [%png] big-img 'png]
     return
     prog: progress 300x5 0%
     
@@ -577,5 +588,5 @@ view compose/deep [
     return
     scr: base 800x645 
     draw grid
-    on-create [render-grid]
+    on-create [render-grid false]
  ] 
