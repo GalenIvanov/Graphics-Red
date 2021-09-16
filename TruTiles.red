@@ -7,40 +7,48 @@ Red [
 cells: make block! 2000
 cell-size: 0
 
-r3:     [tri: [60 tri 60 tri 60 tri]]
-r4:     [square: [90 square 90 square 90 square 90 square]]
-r6:     [hex: [120 hex 120 hex 120 hex 120 hex 120 hex 120 hex]]        
-r6-3:   [hex: [120 tri 120 tri 120 tri 120 tri 120 tri 120 tri]
-         tri: [60 hex 60 hex 60 hex]]
-r6-4-3: [hex: [120 square 120 square 120 square 120 square 120 square 120 square]
-         square: [90 tri 90 hex 90 tri 90 hex]
-         tri: [60 square 60 square 60 square]]       
-r8-4:   [octa: [135 octa 135 square 135 octa 135 square 135 octa 135 square 135 octa 135 square]
-         square: [90 octa 90 octa 90 octa 90 octa]]
-r12-3:  [p12: [150 tri 150 p12 150 tri 150 p12 150 tri 150 p12 150 tri 150 p12 150 tri 150 p12 150 tri 150 p12]
-         tri: [60 p12 60 p12 60 p12]]
-r4-3:   [sq1: [90 t1 90 t2 90 t3 90 t4]
-         sq2: [90 t4 90 t1 90 t2 90 t3]
-         t1:  [60 sq1 60 sq2 60 t3]
-         t2:  [60 sq1 60 sq2 60 t4]
-         t3:  [60 sq1 60 sq2 60 t1]
-         t4:  [60 sq1 60 sq2 60 t2]]
-r4-3a:  [sq1: [90 td1 90 sq2 90 tu1 90 sq2]
-         sq2: [90 td2 90 sq1 90 tu2 90 sq1]  
-         td1: [60 sq1 60 tu1 60 tu2]
-         tu1: [60 sq1 60 td1 60 td2] 
-         td2: [60 sq2 60 tu2 60 tu1] 
-         tu2: [60 sq2 60 td2 60 td1]]
+; tesselation rules
+r3:      [tri: [60 tri 60 tri 60 tri]]
+r4:      [square: [90 square 90 square 90 square 90 square]]
+r6:      [hex: [120 hex 120 hex 120 hex 120 hex 120 hex 120 hex]]        
+r6-3:    [hex: [120 tri 120 tri 120 tri 120 tri 120 tri 120 tri]
+          tri: [60 hex 60 hex 60 hex]]
+r6-3-3:  [hex:  [120 tri1 120 tri1 120 tri1 120 tri1 120 tri1 120 tri1]
+          tri1: [60 hex 60 tri2 60 tri1]
+          tri2: [60 tri1 60 tri1 60 tri1]]         
+r6-4-3:  [hex: [120 square 120 square 120 square 120 square 120 square 120 square]
+          square: [90 tri 90 hex 90 tri 90 hex]
+          tri: [60 square 60 square 60 square]]       
+r8-4:    [octa: [135 octa 135 square 135 octa 135 square 135 octa 135 square 135 octa 135 square]
+          square: [90 octa 90 octa 90 octa 90 octa]]
+r12-3:   [p12: [150 tri 150 p12 150 tri 150 p12 150 tri 150 p12 150 tri 150 p12 150 tri 150 p12 150 tri 150 p12]
+          tri: [60 p12 60 p12 60 p12]]
+r12-6-4: [p12: [150 hex 150 sq 150 hex 150 sq 150 hex 150 sq 150 hex 150 sq 150 hex 150 sq 150 hex 150 sq]
+          hex: [120 p12 120 sq 120 p12 120 sq 120 p12 120 sq]
+          sq: [90 p12 90 hex 90 p12 90 hex]]
+r4-3:    [sq1: [90 t1 90 t2 90 t3 90 t4]
+          sq2: [90 t4 90 t1 90 t2 90 t3]
+          t1:  [60 sq1 60 sq2 60 t3]
+          t2:  [60 sq1 60 sq2 60 t4]
+          t3:  [60 sq1 60 sq2 60 t1]
+          t4:  [60 sq1 60 sq2 60 t2]]
+r4-3a:   [sq1: [90 td1 90 sq2 90 tu1 90 sq2]
+          sq2: [90 td2 90 sq1 90 tu2 90 sq1]  
+          td1: [60 sq1 60 tu1 60 tu2]
+          tu1: [60 sq1 60 td1 60 td2] 
+          td2: [60 sq2 60 tu2 60 tu1] 
+          tu2: [60 sq2 60 td2 60 td1]]
          
-all-rules: [r3 20 r4 15 r6 10 r6-3 10 r6-4-3 8 r8-4 8 r12-3 7 r4-3 12 r4-3a 12]
+all-rules: [r3 20 r4 15 r6 10 r6-3 10 r6-3-3 10 r6-4-3 8 r8-4 8 r12-3 7 r12-6-4 7 r4-3 12 r4-3a 12]
 rules: make block! 100
 ;conds: make block! 100
 conds-thumbs: [x > 0 x < 70 y > 0 y < 70] 
-conds-screen: [x > 0 x < 800 y > 0 y < 645]
+conds-screen: [x > 0 x < 800 y > 0 y < 760]
 conds-big: [x > 0 x < 1920 y > 0 y < 1080]
 cells-to-check: make block! 10000
 grid: make block! 10000
 coords: make block! 10000
+
 ;initial settings
 cur-rule: 'r3
 prop: copy [100 0 0 0 0]
@@ -57,7 +65,7 @@ r-tile: 100
 r-dual: r-diam: r-truchet: r-diag: 0
 rndseed: 0
 bg: on
-prog-c: [r3 7.8 r4 4 r6 2.2 r6-3 3.5 r6-4-3 4 r8-4 1.9 r12-3 1.5 r4-3 5.8 r4-3a 5.8]
+prog-c: [r3 7.8 r4 4 r6 2.2 r6-3 3.5 r6-3-3 3.5 r6-4-3 4 r8-4 1.9 r12-3 1.5 r12-6-4 2.0 r4-3 5.8 r4-3a 5.8]
 
 
 grid-header: [
@@ -575,18 +583,20 @@ view compose/deep [
     
     space 2x2
     below return
-    b-r4:     base 70x70 draw [image (r4-img)(frame)] [select-thumb 'r4]
-    b-r3:     base 70x70 draw [image (r3-img)]        [select-thumb 'r3]
-    b-r6:     base 70x70 draw [image (r6-img)]        [select-thumb 'r6] 
-    b-r6-3:   base 70x70 draw [image (r6-3-img)]      [select-thumb 'r6-3]
-    b-r6-4-3: base 70x70 draw [image (r6-4-3-img)]    [select-thumb 'r6-4-3]
-    b-r8-4:   base 70x70 draw [image (r8-4-img)]      [select-thumb 'r8-4]  
-    b-r12-3:  base 70x70 draw [image (r12-3-img)]     [select-thumb 'r12-3]
-    b-r4-3:   base 70x70 draw [image (r4-3-img)]      [select-thumb 'r4-3]
-    b-r4-3a:  base 70x70 draw [image (r4-3a-img)]     [select-thumb 'r4-3a] 
+    b-r4:      base 70x70 draw [image (r4-img)(frame)] [select-thumb 'r4]
+    b-r3:      base 70x70 draw [image (r3-img)]        [select-thumb 'r3]
+    b-r6:      base 70x70 draw [image (r6-img)]        [select-thumb 'r6] 
+    b-r6-3:    base 70x70 draw [image (r6-3-img)]      [select-thumb 'r6-3]
+    b-r6-3-3:  base 70x70 draw [image (r6-3-3-img)]    [select-thumb 'r6-3-3]
+    b-r6-4-3:  base 70x70 draw [image (r6-4-3-img)]    [select-thumb 'r6-4-3]
+    b-r8-4:    base 70x70 draw [image (r8-4-img)]      [select-thumb 'r8-4]  
+    b-r12-3:   base 70x70 draw [image (r12-3-img)]     [select-thumb 'r12-3]
+    b-r12-6-4: base 70x70 draw [image (r12-6-4-img)]   [select-thumb 'r12-6-4]
+    b-r4-3:    base 70x70 draw [image (r4-3-img)]      [select-thumb 'r4-3]
+    b-r4-3a:   base 70x70 draw [image (r4-3a-img)]     [select-thumb 'r4-3a] 
     space 8x5
     return
-    scr: base 800x645 
+    scr: base 800x760
     draw grid
     on-create [render-grid false]
- ] 
+ ]
