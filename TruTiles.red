@@ -39,11 +39,12 @@ r4-3a:   [sq1: [90 td1 90 sq2 90 tu1 90 sq2]
           td2: [60 sq2 60 tu2 60 tu1] 
           tu2: [60 sq2 60 td2 60 td1]]
          
-all-rules: [r3 20 r4 15 r6 10 r6-3 10 r6-3-3 10 r6-4-3 8 r8-4 8 r12-3 7 r12-6-4 7 r4-3 12 r4-3a 12]
+;all-rules: [r3 20 r4 15 r6 10 r6-3 10 r6-3-3 10 r6-4-3 8 r8-4 8 r12-3 7 r12-6-4 7 r4-3 12 r4-3a 12]
+all-rules: [r3 25 r4 20 r6 15 r6-3 15 r6-3-3 15 r6-4-3 12 r8-4 12 r12-3 10 r12-6-4 10 r4-3 15 r4-3a 15]
 rules: make block! 100
 ;conds: make block! 100
-conds-thumbs: [x > 0 x < 70 y > 0 y < 70] 
-conds-screen: [x > 0 x < 800 y > 0 y < 760]
+conds-thumbs: [x > 0 x < 100 y > 0 y < 100] 
+conds-screen: [x > 0 x < 800 y > 0 y < 645]
 conds-big: [x > 0 x < 1920 y > 0 y < 1080]
 cells-to-check: make block! 10000
 grid: make block! 10000
@@ -85,7 +86,7 @@ grid-front: [
     color: pen snow
 ]
 
-frame: [line-width 5 pen yellow box 0x0 70x70]
+frame: [line-width 5 pen yellow box 0x0 100x100]
 
 calc-center: function [
     coords [block!] {a block with coordinates [x1 y1 x2 y2 ... xn yn]}
@@ -347,10 +348,10 @@ init-cells: func [
 
 make-thumbs: does [
     foreach [rule size] all-rules [
-        init-cells get rule conds-thumbs size 30 30 0
+        init-cells get rule conds-thumbs size 40 40 0
         while [not empty? cells-to-check][make-cells]
         img: to-word rejoin [rule "-img"]
-        set img make image! [70x70 0.0.0.255]
+        set img make image! [100x100 0.0.0.255]
         grid: copy grid-header
         foreach c draw-cells [append grid render-cell c prop]
         draw get img grid
@@ -425,6 +426,9 @@ render-grid: func [
     change at find grid-front 'color 3 line-color
     change at find grid-front 'thick 3 10 * cell-width
     append grid grid-front
+    ;---------
+    append grid [scale-factor: scale 1 1]
+    ;
     random/seed rndseed
     foreach c coords [
         append grid render-cell c prop
@@ -432,7 +436,7 @@ render-grid: func [
         prog/data: n / count
     ]
     t2: now/time/precise
-    print ["Image generated for" t2 - t1 "seconds"]
+    ;print ["Image generated for" t2 - t1 "seconds"]
     draw big-img grid
 ]
 
@@ -503,6 +507,8 @@ get-color: func [
 make-thumbs
 cur-rule: 'r4
 line-color: 42.120.150
+
+base-c: 0.1
 
 view compose/deep [
     title "TruTiles"
@@ -581,22 +587,28 @@ view compose/deep [
     return
     prog: progress 300x5 0%
     
-    space 2x2
+    space 5x5
     below return
-    b-r4:      base 70x70 draw [image (r4-img)(frame)] [select-thumb 'r4]
-    b-r3:      base 70x70 draw [image (r3-img)]        [select-thumb 'r3]
-    b-r6:      base 70x70 draw [image (r6-img)]        [select-thumb 'r6] 
-    b-r6-3:    base 70x70 draw [image (r6-3-img)]      [select-thumb 'r6-3]
-    b-r6-3-3:  base 70x70 draw [image (r6-3-3-img)]    [select-thumb 'r6-3-3]
-    b-r6-4-3:  base 70x70 draw [image (r6-4-3-img)]    [select-thumb 'r6-4-3]
-    b-r8-4:    base 70x70 draw [image (r8-4-img)]      [select-thumb 'r8-4]  
-    b-r12-3:   base 70x70 draw [image (r12-3-img)]     [select-thumb 'r12-3]
-    b-r12-6-4: base 70x70 draw [image (r12-6-4-img)]   [select-thumb 'r12-6-4]
-    b-r4-3:    base 70x70 draw [image (r4-3-img)]      [select-thumb 'r4-3]
-    b-r4-3a:   base 70x70 draw [image (r4-3a-img)]     [select-thumb 'r4-3a] 
+    b-r4:      base 100x100 draw [image (r4-img)(frame)] [select-thumb 'r4]
+    b-r3:      base 100x100 draw [image (r3-img)]        [select-thumb 'r3]
+    b-r6:      base 100x100 draw [image (r6-img)]        [select-thumb 'r6] 
+    b-r6-3:    base 100x100 draw [image (r6-3-img)]      [select-thumb 'r6-3]
+    b-r6-3-3:  base 100x100 draw [image (r6-3-3-img)]    [select-thumb 'r6-3-3]
+    b-r6-4-3:  base 100x100 draw [image (r6-4-3-img)]    [select-thumb 'r6-4-3]
+    return              
+    b-r8-4:    base 100x100 draw [image (r8-4-img)]      [select-thumb 'r8-4]  
+    b-r12-3:   base 100x100 draw [image (r12-3-img)]     [select-thumb 'r12-3]
+    b-r12-6-4: base 100x100 draw [image (r12-6-4-img)]   [select-thumb 'r12-6-4]
+    b-r4-3:    base 100x100 draw [image (r4-3-img)]      [select-thumb 'r4-3]
+    b-r4-3a:   base 100x100 draw [image (r4-3a-img)]     [select-thumb 'r4-3a]
+	radio "Side" on
+	radio "Line"
+	radio "Shadow"
+	
     space 8x5
     return
-    scr: base 800x760
+    scr: base 800x645  ;rate 30
     draw grid
     on-create [render-grid false]
- ]
+    ;on-time [base-c: base-c * 1.1 % 3 scale-factor/2: base-c scale-factor/3: base-c]
+]
