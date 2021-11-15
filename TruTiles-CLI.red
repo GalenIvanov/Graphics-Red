@@ -58,20 +58,19 @@ prop: copy [100 0 0 0 0]
 cell-sz: 40
 rot: 0
 cell-width: 3
-line-color: 42.120.150
+line-color: sky
 bgcolor: aqua
 shadow?: off
 shadowcolor: white
-shadowsz: 9
-shadowoffs: 0x0
-r-tile: 100
-r-dual: r-diam: r-truchet: r-diag: 0
-rndseed: 0
+shadow-sz: 9
+shad-offs: 0x0
+;r-tile: 100
+;r-dual: r-diam: r-truchet: r-diag: 0
+rnd-seed: 0
 out-file: %TruTiles.png
 bg: on
 
-;prog-c: [r3 7.8 r4 4 r6 2.2 r6-3 3.5 r6-3-3 3.5 r6-4-3 4 r8-4 1.9 r12-3 1.5 r12-6-4 2.0 r4-3 5.8 r4-3a 5.8]
-prog-c: [r3 1 r4 1 r6 1 r6-3 1 r6-3-3 1 r6-4-3 1 r8-4 1 r12-3 1 r12-6-4 1 r4-3 1 r4-3a 1]
+prog-c: [r3 7.8 r4 4 r6 2.2 r6-3 3.5 r6-3-3 3.5 r6-4-3 4 r8-4 1.9 r12-3 1.5 r12-6-4 2.0 r4-3 5.8 r4-3a 5.8]
 
 ;r3:      
 ;r4:      
@@ -137,7 +136,7 @@ render-cell: function [
     cx: to-integer average extract cell 2
     cy: to-integer average extract next cell 2
     
-    offs: either bg [shadowoffs][0x0]
+    offs: 10x10 * either bg [shad-offs][0x0]
     
     case [
         sel <= orig [
@@ -333,7 +332,7 @@ init-cells: func [
     rot       [integer!]
     /local cell cell-center n edges cell-name cell-type cond-out 
 ][
-    random/seed rndseed
+    random/seed rnd-seed
     clear head cells
     rules: copy new-rules
     conds: copy new-conds
@@ -367,16 +366,16 @@ render-grid: func [
     /local sp count n t1 t2 cond
 ][
     t1: now/time/precise
-    rndseed: 0 ; !!! option !!!
-    
+       
     count: 2000 / cell-sz * (1000 / cell-sz)  
     n: 0
        
-    count: count * (select prog-c cur-rule)   ; ; progress etimate   !!! - I need to update them
-    print count
-    ;unless shadow? [count: to-integer count * 0.66]
-        
-    prop: reduce [r-tile r-dual r-diam r-truchet r-diag]
+    count: count * (select prog-c cur-rule)   ; ; progress etimate - imprecise! 
+    progress: to-integer count / 20
+    unless shadow? [count: to-integer count * 0.66]
+    
+    ; normalize the mix of the effects     
+    prop: reduce [prop/1 prop/2 prop/3 prop/4 prop/5]
     either zero? sp: sum prop [
         prop: [20 20 20 20 20]
         norm: 1
@@ -385,7 +384,6 @@ render-grid: func [
     ]
     forall prop [prop/1: to-integer norm * prop/1]
     
-    
     big-img: make image! [1920x1080 0.0.0.255]
   
     cond: either img? [conds-big][conds-screen]
@@ -393,22 +391,21 @@ render-grid: func [
     init-cells get cur-rule cond cell-sz 5000 5000 rot
     while [not empty? cells-to-check][
         make-cells
-        ;n: n + 1
-        ;prog/data: n / count
-        ;prin dot
+        n: n + 1
+        if zero? n % progress [prin dot n: 0]
     ]
     
-    random/seed rndseed
+    random/seed rnd-seed
     coords: draw-cells
     clear grid
     append clear grid compose [fill-pen (bgcolor) box 0x0 1920x1080 line-cap round line-join round]
     bg: on
     if shadow? [
-        append grid compose [line-width (10 * shadowsz) pen (shadowcolor)]
+        append grid compose [line-width (10 * shadow-sz) pen (shadowcolor)]
         foreach c coords [
             append grid render-cell c prop
-            ;n: n + 1
-            ;prin dot
+            n: n + 1
+            if zero? n % progress [prin dot n: 0]
         ]
     ]
     bg: off
@@ -418,11 +415,11 @@ render-grid: func [
     ;---------
     append grid [scale-factor: scale 1 1]
     ;
-    random/seed rndseed
+    random/seed rnd-seed
     foreach c coords [
         append grid render-cell c prop
-        ;n: n + 1
-        ;prog/data: n / count
+        n: n + 1
+        if zero? n % progress [prin dot n: 0]
     ]
     t2: now/time/precise
     ;print ["Image generated for" t2 - t1 "seconds"]
@@ -437,49 +434,100 @@ render-grid: func [
     line-color: 42.120.150
     bgcolor: aqua
     shadow?: on
-    shadowcolor: white
-    shadowsz: 9
-    shadowoffs: 0x0
+    shadowcolor: black
+    shadow-sz: 9
+    shad-offs: 0x0
     r-tile: 100
     r-dual: r-diam: r-truchet: r-diag: 0
     prop: copy [100 0 0 0 0]
-    rndseed: 0
+    rnd-seed: 0
     out-file: %TruTiles.png
 ]   
 
+fix-input: does [
+    unless find [r3 r4 r6 r6-3 r6-3-3 r6-4-3 r8-4 r12-3 r12-6-4 r4-3 r4-3a] cur-rule [
+        cur-rule: 'r4
+        print "Unknown rule, Defaulting to r4 (square grid)"
+    ]
+    if any [cell-sz < 15 cell-sz > 250][
+        cell-sz: 40
+        print "Size is outside the limits. Defaulting to 40 pixels"
+    ]
+    if any [cell-width < 1 cell-width > 200][
+        cell-width: 3
+        print "Width is outside the limits. Defaulting to 3 pixels"
+    ]
+    if 4 < length? line-color [
+        line-color: sky
+        print "Color is invalid. Defaulting to sky"
+    ]
+    if 4 < length? bgcolor [
+        bgcolor: aqua
+        print "Background color is invalid. Defaulting to aqua"
+    ]
+    if 4 < length? shadowcolor [
+        shadowcolor: black
+        print "Background color is invalid. Defaulting to black"
+    ]
+    if any [shadow-sz < 1 shadow-sz > 250][
+        shadow-sz: 9
+        print "Shadow line width is outside the limits. Defaulting to 9 pixels"
+    ]
+    if 5 <> length? prop [
+        prop: 100.0.0.0.0
+        print "Effect mix must be a 5-tuple. Defaulting to 100.0.0.0.0"
+    ]
+    unless parse out-file [to [".png" end]] [append out-file ".png"]
+    
+ ]
 
 program: func [
-    rule {Type of tiling to be used}
+    rule {Type of tiling to be used - one of r3, r4, r6, r6-3, r6-3-3, r6-4-3, r8-4, r12-3, r12-6-4, r4-3 or r4-3a}
     /size 
-        cell-size [integer!]  {Size of the cell, between 15 and 200. Default 40}
+        cell-size [integer!]  {Size of the cell, between 15 and 250. Default: 40 pixels}
     /rotate
-        rotation  [number! float!] {Rotation angle. Default 0 degrees}
-    /thickness
-        cell-line [integer!]  {Line thickness. Default 3 pixels}
+        rotation  [number! float!] {Rotation angle. Default: 0 degrees}
+    /width
+        cell-line [integer!]  {Line width. Default: 3 pixels}
     /color
-        edge-color   {Cell edge color.Default 42.120.150}
-    ;line-color: 42.120.150
-    ;bgcolor: aqua
-    /shadow   {Turn on shadow. Turned off by default}
-    ;shadowcolor: white
-    ;shadowsz: 9
-    ;shadowoffs: 0x0
-    ;r-tile: 100
-    ;r-dual: r-diam: r-truchet: r-diag: 0
-    ;prop: copy [100 0 0 0 0]
-    ;rndseed: 0
+        edge-clr   {Cell edge color. Default: sky}
+    /bg-color
+        bg-clr   {Backgraound color. Default: aqua}  
+    /shadow    {Turn on shadow. Default: off}
+    /sh-color  
+        shadow-clr {Shadow color. Default: black }
+    /sh-line
+        shadow-size [integer!] {Shadow line width. Default: 9 pixels}    
+    /sh-offset
+        shadow-offs [pair!]  {Shadow offset. Default: 0x0}
+    /tile-mix 
+        ratio   {Share of each effect in the image: Tile, Dual, Diamond, Truchet, Diagonal. Default: 100.0.0.0.0}
+    /seed    
+        rand-seed [integer!] {Random seed. Default: 0}
+    /o 
+        output [string!]  {Output file name. Default: TruTiles.png }
+    /v  {Display result in a window}         
 ][
     cur-rule: to-lit-word rule
-    if size [cell-sz: cell-size] 
-    if rotate [rot: rotation]
-    if thickness [cell-width: cell-line]
-    if color [line-color: load edge-color]
+    cell-sz: any [cell-size cell-sz] 
+    rot: any [rotation rot]
+    cell-width: any [cell-line cell-width]
+    if color [line-color: load edge-clr]
+    if bg-color [bgcolor: load bg-clr]
     if shadow [shadow?: on]
+    if sh-color [shadowcolor: load shadow-clr]
+    if sh-line [shadow-sz: shadow-size]
+    if sh-offset [shad-offs: shadow-offs]
+    if tile-mix [prop: load ratio]
+    rnd-seed: any [rand-seed rnd-seed]
+    if o [out-file: to-file output]
     
-    prin "Working"
+    fix-input
+    
+    prin "Working "
     render-grid true
-    ;save/as request-file/save/file/filter out-file [%png] big-img 'png
     save/as out-file big-img 'png
+    if v [? (big-img)]
 ]
 
 cli/process-into program
