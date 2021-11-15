@@ -5,6 +5,8 @@ Red [
     Needs: 'View
 ]
 
+; CLI dialect for Red 
+; https://gitlab.com/hiiamboris/red-cli
 #include %cli.red
 
 cells: make block! 2000
