@@ -54,4 +54,5 @@ Pattern generator. It creates a grid of tiles (the 3 regular and another 6 semir
 Thinking Machines Panel
 -
 Inspired by by the front panels of [Connection Machine](https://en.wikipedia.org/wiki/Connection_Machine) and Thinking Machnes Corporation supercomputers.
+
 <img src="Animation - Thinking Machines.gif">
