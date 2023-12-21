@@ -5,7 +5,8 @@ Red [
 
 light-rows: collect [ 
 	loop 32 [ 
-		keep/only collect [loop 32 [keep pick [red black] (random 9) < 4]]	
+		keep/only collect [loop 32 [keep pick [red black] (random 9) < 4]
+		]	
 	]
 ]
 
@@ -24,18 +25,18 @@ move-lights: does [
 			pos/1: light-rows/:y/:x
 			pos: skip pos 5
 		]
-	]
+	] 
 ]
 
 led-panel: collect [
 	keep [pen transparent] 
 	repeat y 32 [
 		repeat x 16 [                                                 
-	    	keep 'fill-pen                                            	; 1	    												
-	    	keep light-rows/:y/:x                                     	; 2 - these will be updated	           
-	    	keep 'box													; 3 	
-	    	keep make point2D! compose [(x - 1 * 16) (y - 1 * 16)]		; 4			
-	    	keep make point2D! compose [(x * 16) (y * 16)] 				; 5		
+            keep 'fill-pen												    												
+            keep light-rows/:y/:x						; these will be updated	           
+            keep 'box												 	
+            keep make point2D! compose [(x - 1 * 16) (y - 1 * 16)]				
+            keep make point2D! compose [(x * 16) (y * 16)]			
 	    ]	
 	] 
 ]
