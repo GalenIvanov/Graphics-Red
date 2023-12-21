@@ -5,8 +5,7 @@ Red [
 
 light-rows: collect [ 
 	loop 32 [ 
-		keep/only collect [loop 32 [keep pick [red black] (random 9) < 4]
-		]	
+		keep/only collect [loop 32 [keep pick [red black] (random 9) < 4]]	
 	]
 ]
 
