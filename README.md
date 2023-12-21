@@ -50,3 +50,7 @@ Pattern generator. It creates a grid of tiles (the 3 regular and another 6 semir
 - Diagonals: lines connecting the vertices of the tile and the center of the tile
 
 <img src="TruTiles.png">
+
+Thinking Machines Panel
+-
+Inspired by by the front panels of [Connection Machine](https://en.wikipedia.org/wiki/Connection_Machine) and Thinking Machnes Corporation supercomputers.
