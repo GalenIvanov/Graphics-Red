@@ -3,6 +3,8 @@ Red [
     Author: "Galen Ivanov" 
 ]
 
+random/seed now
+
 light-rows: collect [ 
     loop 32 [ 
         keep/only collect [loop 32 [keep pick [red black] (random 9) < 4]]    
@@ -10,12 +12,10 @@ light-rows: collect [
 ]
 
 move-lights: does [
-    repeat row 32 [
-        either zero? (to-integer row - 1 / 4) // 2 [
-            move light-rows/:row tail light-rows/:row
-        ][
-            move back tail light-rows/:row light-rows/:row
-        ]    
+    ; rows in groups of 4 slide alternatingly to the left or to the right          
+    forall light-rows [            
+        size: (to-integer (index? light-rows) - 1 / 4) // 2 * 30 + 1
+        move/part light-rows/1 tail light-rows/1 size
     ]
     
     pos: at led-panel 4
@@ -32,7 +32,7 @@ led-panel: collect [
     repeat y 32 [
         repeat x 16 [                                                 
             keep 'fill-pen                                                                                                    
-            keep light-rows/:y/:x                                    ; these will be updated               
+            keep light-rows/:y/:x    ; these will be updated               
             keep 'box                                                     
             keep make point2D! compose [(x - 1 * 16) (y - 1 * 16)]                
             keep make point2D! compose [(x * 16) (y * 16)]            
@@ -41,7 +41,7 @@ led-panel: collect [
 ]
 
 view [
-    title "Thinking Machines Display"
+    title "Connection Machines Display"
     base (256, 512) draw led-panel rate 8
     on-time [move-lights]
 ]
