@@ -56,3 +56,10 @@ Thinking Machines Panel
 Inspired by by the front panels of [Connection Machine](https://en.wikipedia.org/wiki/Connection_Machine) and Thinking Machnes Corporation supercomputers.
 
 <img src="Animation - Thinking Machines.gif">
+
+
+Axe Truchet
+-
+Another simple Truchet-like tiling, based on a single tile shaped like a double axe.
+
+<img src="Axe-truchet-flowers.png" width="512">
